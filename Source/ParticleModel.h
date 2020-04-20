@@ -7,7 +7,7 @@ class Transform;
 
 class ParticleModel
 {
-private:
+protected:
 	Transform& _transform;
 
 	DirectX::SimpleMath::Vector3 _velocity;
@@ -17,16 +17,16 @@ private:
 	float _inverseMass;
 	float _linearDamping;
 
-private:
-	void Integrate(float deltaTime);
-	void ResetForceAccumulator();
+protected:
+	virtual void Integrate(float deltaTime);
+	virtual void ResetForces();
 
 public:
 	ParticleModel(Transform& transform,
 				  const DirectX::SimpleMath::Vector3& initialVelocity,
 				  const DirectX::SimpleMath::Vector3& initialAcceleration);
 
-	~ParticleModel();
+	virtual ~ParticleModel();
 
 	void Update(float deltaTime);
 

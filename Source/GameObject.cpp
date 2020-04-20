@@ -1,8 +1,10 @@
 #include "GameObject.h"
 
-GameObject::GameObject(const DirectX::SimpleMath::Vector3& position,
-                       const DirectX::SimpleMath::Vector3& rotation,
-                       const DirectX::SimpleMath::Vector3& scale,
+using DirectX::SimpleMath::Vector3;
+
+GameObject::GameObject(const Vector3& position,
+                       const Vector3& rotation,
+                       const Vector3& scale,
                        const Geometry& geometry,
                        const Material& material)
 {

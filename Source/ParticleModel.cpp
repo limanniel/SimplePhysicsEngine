@@ -6,8 +6,8 @@
 using DirectX::SimpleMath::Vector3;
 
 ParticleModel::ParticleModel(Transform& transform,
-                             const DirectX::SimpleMath::Vector3& initialVelocity,
-                             const DirectX::SimpleMath::Vector3& initialAcceleration)
+                             const Vector3& initialVelocity,
+                             const Vector3& initialAcceleration)
     : _transform(transform),
       _velocity(initialVelocity),
       _acceleration(initialAcceleration),
@@ -38,7 +38,7 @@ void ParticleModel::Integrate(float deltaTime)
     _transform.SetPosition(_transform.GetPosition() + (_velocity * deltaTime));
 
     // Reset Forces
-    ResetForceAccumulator();
+    ResetForces();
 }
 
 void ParticleModel::Update(float deltaTime)
@@ -46,14 +46,14 @@ void ParticleModel::Update(float deltaTime)
     Integrate(deltaTime);
 }
 
-void ParticleModel::AddForce(const DirectX::SimpleMath::Vector3& force)
+void ParticleModel::AddForce(const Vector3& force)
 {
     _forceAccumulator += force;
 }
 
-void ParticleModel::ResetForceAccumulator()
+void ParticleModel::ResetForces()
 {
-    _forceAccumulator.Zero;
+    _forceAccumulator = Vector3::Zero;
 }
 
 void ParticleModel::MoveConstVelocity(float deltaTime)

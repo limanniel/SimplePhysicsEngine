@@ -1,12 +1,14 @@
 #include "pmGameObject.h"
 
-pmGameObject::pmGameObject(const DirectX::SimpleMath::Vector3& position,
-						   const DirectX::SimpleMath::Vector3& rotation,
-						   const DirectX::SimpleMath::Vector3& scale,
+using DirectX::SimpleMath::Vector3;
+
+pmGameObject::pmGameObject(const Vector3& position,
+						   const Vector3& rotation,
+						   const Vector3& scale,
 						   const Geometry& geometry,
 						   const Material& material,
-						   const DirectX::SimpleMath::Vector3& initialVelocity,
-						   const DirectX::SimpleMath::Vector3& initialAcceleration)
+						   const Vector3& initialVelocity,
+						   const Vector3& initialAcceleration)
     : GameObject(position, rotation, scale, geometry, material)
 {
 	_particle = new ParticleModel(*_transform,
