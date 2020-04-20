@@ -708,8 +708,6 @@ void Application::moveObject(int objectNumber,
 {
 	pmGameObject* object = static_cast<pmGameObject*>(_gameObjects[objectNumber]);
 	object->GetParticleModel()->AddForce(force);
-
-	spdlog::get("LOGGER")->info("Velocity: {}", object->GetParticleModel()->GetVelocity().z);
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -719,12 +717,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(0.0f, 0.0f, -0.10f));
+		moveObject(1, Vector3(0.0f, 0.0f, -5.00f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(0.0f, 0.0f, 0.10f));
+		moveObject(1, Vector3(0.0f, 0.0f, 5.00f));
 	}
 
 	UpdateCamera();
@@ -810,7 +808,7 @@ void Application::Draw()
 		cb.surface.SpecularMtrl = material.specular;
 
 		// Set world matrix
-		cb.World = XMMatrixTranspose(gameObject->GetWorldMatrix());
+		cb.World = XMMatrixTranspose(gameObject->GetTransform()->GetWorldMatrix());
 
 		// Set texture
 		if (gameObject->GetAppearance()->HasTexture())

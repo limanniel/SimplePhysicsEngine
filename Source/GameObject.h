@@ -10,7 +10,6 @@ class GameObject
 protected:
 	Transform*  _transform;
 	Appearance* _appearance;
-	DirectX::SimpleMath::Matrix _worldMatrix;
 
 protected:
 	GameObject(const DirectX::SimpleMath::Vector3& position,
@@ -30,6 +29,5 @@ public:
 
 	inline Transform* GetTransform() const { return _transform; }
 	inline Appearance* GetAppearance() const { return _appearance; }
-	inline DirectX::SimpleMath::Matrix GetWorldMatrix() const { return _worldMatrix; }
 };
 

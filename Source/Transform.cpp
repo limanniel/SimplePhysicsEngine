@@ -7,7 +7,8 @@ Transform::Transform(const DirectX::SimpleMath::Vector3& position,
                      const DirectX::SimpleMath::Vector3& scale)
     : _position(position),
       _rotation(rotation),
-      _scale(scale)
+      _scale(scale),
+      _worldMatrix(_worldMatrix.Identity)
 {
 }
 
@@ -15,11 +16,11 @@ Transform::~Transform()
 {
 }
 
-DirectX::SimpleMath::Matrix Transform::CalculateWorldMatrix() const
+void Transform::Update(float deltaTime)
 {
-    Matrix scale = Matrix::CreateScale(_scale);
-    Matrix rotation = Matrix::CreateRotationX(_rotation.x) * Matrix::CreateRotationY(_rotation.y) * Matrix::CreateRotationZ(_rotation.z);
-    Matrix translation = Matrix::CreateTranslation(_position);
+	Matrix scale = Matrix::CreateScale(_scale);
+	Matrix rotation = Matrix::CreateRotationX(_rotation.x) * Matrix::CreateRotationY(_rotation.y) * Matrix::CreateRotationZ(_rotation.z);
+	Matrix translation = Matrix::CreateTranslation(_position);
 
-    return Matrix(scale * rotation * translation);
+    _worldMatrix = scale * rotation * translation;
 }

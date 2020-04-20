@@ -12,15 +12,12 @@ GameObject::GameObject(const DirectX::SimpleMath::Vector3& position,
 
     _appearance = new Appearance(geometry,
                                  material);
-
-    _worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 }
 
 GameObject::GameObject(Transform* transform,
                        Appearance* appearance)
     : _transform(transform),
-      _appearance(appearance),
-      _worldMatrix(DirectX::SimpleMath::Matrix::Identity)
+      _appearance(appearance)
 {
 }
 

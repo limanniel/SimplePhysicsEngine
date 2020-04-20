@@ -10,13 +10,15 @@ private:
 	DirectX::SimpleMath::Vector3 _rotation;
 	DirectX::SimpleMath::Vector3 _scale;
 
+	DirectX::SimpleMath::Matrix _worldMatrix;
+
 public:
 	Transform(const DirectX::SimpleMath::Vector3& position,
 			  const DirectX::SimpleMath::Vector3& rotation,
 			  const DirectX::SimpleMath::Vector3& scale);
 	~Transform();
 
-	DirectX::SimpleMath::Matrix CalculateWorldMatrix() const;
+	void Update(float deltaTime);
 
 	inline void SetPosition(const DirectX::SimpleMath::Vector3& position) { _position = position; }
 	inline void SetRotation(const DirectX::SimpleMath::Vector3& rotation) { _rotation = rotation; }
@@ -25,5 +27,7 @@ public:
 	inline DirectX::SimpleMath::Vector3 GetPosition() const { return _position; }
 	inline DirectX::SimpleMath::Vector3 GetRotation() const { return _rotation; }
 	inline DirectX::SimpleMath::Vector3 GetScale() const { return _scale; }
+
+	inline DirectX::SimpleMath::Matrix GetWorldMatrix() const { return _worldMatrix; }
 };
 
