@@ -138,7 +138,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;PROFILE;_WINDOWS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -177,7 +177,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;PROFILE;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -217,7 +217,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -257,7 +257,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -298,7 +298,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;PROFILE;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -338,7 +338,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\spdlog;$(ProjectDir)Source\DirectXTK\Inc;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;PROFILE;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -374,6 +374,7 @@
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Source\GameObject.cpp" />
+    <ClCompile Include="Source\ParticleModel.cpp" />
     <ClCompile Include="Source\pmGameObject.cpp" />
     <ClCompile Include="Source\rbGameObject.cpp" />
     <ClCompile Include="Source\Transform.cpp" />
@@ -389,6 +390,7 @@
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\GameObject.h" />
+    <ClInclude Include="Source\ParticleModel.h" />
     <ClInclude Include="Source\pmGameObject.h" />
     <ClInclude Include="Source\rbGameObject.h" />
     <CLInclude Include="Source\resource.h" />

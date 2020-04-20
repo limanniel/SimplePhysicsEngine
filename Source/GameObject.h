@@ -12,7 +12,7 @@ protected:
 	Appearance* _appearance;
 	DirectX::SimpleMath::Matrix _worldMatrix;
 
-public:
+protected:
 	GameObject(const DirectX::SimpleMath::Vector3& position,
 			   const DirectX::SimpleMath::Vector3& rotation,
 			   const DirectX::SimpleMath::Vector3& scale,
@@ -22,10 +22,11 @@ public:
 	GameObject(Transform* transform,
 			   Appearance* appearance);
 
+public:
 	virtual ~GameObject();
 
-	virtual void Render(ID3D11DeviceContext* context);
-	virtual void Update(double deltaTime) = 0;
+	void Render(ID3D11DeviceContext* context);
+	virtual void Update(float deltaTime) = 0;
 
 	inline Transform* GetTransform() const { return _transform; }
 	inline Appearance* GetAppearance() const { return _appearance; }

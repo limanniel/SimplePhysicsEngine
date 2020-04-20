@@ -1,5 +1,8 @@
 #pragma warning (disable : 26812)
+
 #include "Application.h"
+#include "spdlog.h"
+#include "sinks/msvc_sink.h"
 
 using namespace DirectX;
 using DirectX::SimpleMath::Vector3;
@@ -92,6 +95,10 @@ Application::Application()
 	_cameraOrbitAngleXZ = -90.0f;
 	_cameraSpeed = 2.0f;
 
+	// Set-up spdlog
+	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+	auto logger = std::make_shared<spdlog::logger>("LOGGER", sink);
+	spdlog::register_logger(logger);
 }
 
 Application::~Application()
@@ -672,13 +679,15 @@ void Application::PrepareObjects()
 												Vector3(15.0f, 15.0f, 15.0f),
 												planeGeometry,
 												noSpecMaterial);
+
+	planeObject->GetParticleModel()->SetInverseMass(0.0f);
 	planeObject->GetAppearance()->SetTextureRV(_pGroundTextureRV.Get());
 
 	_gameObjects.push_back(planeObject);
 #pragma endregion FloorInit
 
 #pragma region CubesInit
-	for (auto i = 0; i < AMOUNT_OF_CUBES; i++)
+	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
 		pmGameObject* cubeObject = new pmGameObject(Vector3(-4.0f + (i * 2.0f), 0.5f, 10.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
@@ -686,6 +695,7 @@ void Application::PrepareObjects()
 													cubeGeometry,
 													shinyMaterial);
 
+		cubeObject->GetParticleModel()->SetMass(10.0f);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
 		_gameObjects.push_back(cubeObject);
@@ -693,21 +703,28 @@ void Application::PrepareObjects()
 #pragma endregion CubesInit
 }
 
-void Application::moveForward(int objectNumber)
+void Application::moveObject(int objectNumber,
+							 const DirectX::SimpleMath::Vector3& force)
 {
-	//XMFLOAT3 position = _gameObjects[objectNumber]->GetPosition();
-	//position.z -= 0.1f;
-	//_gameObjects[objectNumber]->SetPosition(position);
+	pmGameObject* object = static_cast<pmGameObject*>(_gameObjects[objectNumber]);
+	object->GetParticleModel()->AddForce(force);
+
+	spdlog::get("LOGGER")->info("Velocity: {}", object->GetParticleModel()->GetVelocity().z);
 }
 
 void Application::Update(const DX::StepTimer& timer)
 {
-	double deltaTime = timer.GetElapsedSeconds();
+	float deltaTime = static_cast<float>(timer.GetElapsedSeconds());
 
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveForward(1);
+		moveObject(1, Vector3(0.0f, 0.0f, -0.10f));
+	}
+
+	if (GetAsyncKeyState('2'))
+	{
+		moveObject(1, Vector3(0.0f, 0.0f, 0.10f));
 	}
 
 	UpdateCamera();

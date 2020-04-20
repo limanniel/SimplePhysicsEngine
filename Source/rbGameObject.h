@@ -10,6 +10,6 @@ public:
 	rbGameObject();
 	~rbGameObject();
 
-	void Update(double deltaTime) override;
+	void Update(float deltaTime) override;
 };
 

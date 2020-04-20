@@ -121,7 +121,8 @@ private:
 	ConstantBuffer PrepareConstantBuffer();
 
 	void PrepareObjects();
-	void moveForward(int objectNumber);
+	void moveObject(int objectNumber,
+					const DirectX::SimpleMath::Vector3& force);
 
 public:
 	Application();
