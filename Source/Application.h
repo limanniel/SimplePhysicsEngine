@@ -15,7 +15,7 @@
 #include "resource.h"
 #include "Camera.h"
 #include "pmGameObject.h"
-
+#include "rbGameObject.h"
 
 #pragma region Structs
 struct SimpleVertex

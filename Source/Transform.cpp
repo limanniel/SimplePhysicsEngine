@@ -8,8 +8,7 @@ Transform::Transform(const Vector3& position,
                      const Vector3& scale)
     : _position(position),
       _rotation(rotation),
-      _scale(scale),
-      _worldMatrix(_worldMatrix.Identity)
+      _scale(scale)
 {
 }
 
@@ -17,11 +16,34 @@ Transform::~Transform()
 {
 }
 
-void Transform::Update(float deltaTime)
+DirectX::SimpleMath::Matrix Transform::GetPositionMatrix() const
 {
-	Matrix scale = Matrix::CreateScale(_scale);
-	Matrix rotation = Matrix::CreateRotationX(_rotation.x) * Matrix::CreateRotationY(_rotation.y) * Matrix::CreateRotationZ(_rotation.z);
-	Matrix translation = Matrix::CreateTranslation(_position);
+    return Matrix::CreateTranslation(_position);
+}
 
-    _worldMatrix = scale * rotation * translation;
+DirectX::SimpleMath::Matrix Transform::GetRotationMatrix() const
+{
+    Matrix rotmat = Matrix::Identity;
+
+    rotmat *= Matrix::CreateRotationX(_rotation.x);
+    rotmat *= Matrix::CreateRotationY(_rotation.y);
+    rotmat *= Matrix::CreateRotationZ(_rotation.z);
+
+    return rotmat;
+}
+
+DirectX::SimpleMath::Matrix Transform::GetScaleMatrix() const
+{
+    return Matrix::CreateScale(_scale);
+}
+
+DirectX::SimpleMath::Matrix Transform::GetTransformMatrix() const
+{
+    Matrix transMat = Matrix::Identity;
+
+    transMat *= GetScaleMatrix();
+    transMat *= GetRotationMatrix();
+    transMat *= GetPositionMatrix();
+
+    return transMat;
 }

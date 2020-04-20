@@ -25,5 +25,6 @@ pmGameObject::~pmGameObject()
 void pmGameObject::Update(float deltaTime)
 {
 	_particle->Update(deltaTime);
-	_transform->Update(deltaTime);
+
+	_worldMatrix = _transform->GetTransformMatrix();
 }

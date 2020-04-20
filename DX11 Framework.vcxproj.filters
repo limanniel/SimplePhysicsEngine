@@ -38,7 +38,6 @@
     <ClInclude Include="Source\Transform.h">
       <Filter>Headers\GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Appearance.h">
       <Filter>Headers\GameObjects</Filter>
     </ClInclude>
@@ -51,10 +50,18 @@
     <ClInclude Include="Source\ParticleModel.h">
       <Filter>Headers\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Source\RigidBody.h">
+      <Filter>Headers\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Quaternion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -75,6 +82,12 @@
     </ClCompile>
     <ClCompile Include="Source\ParticleModel.cpp">
       <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RigidBody.cpp">
+      <Filter>Source\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

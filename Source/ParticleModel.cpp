@@ -1,8 +1,6 @@
 #include "ParticleModel.h"
 #include "Transform.h"
 
-#include <cmath>
-
 using DirectX::SimpleMath::Vector3;
 
 ParticleModel::ParticleModel(Transform& transform,

@@ -55,6 +55,7 @@ public:
 	inline void SetInverseMass(float inverseMass) { _inverseMass = inverseMass; }
 	inline float GetInverseMass() const { return _inverseMass; }
 
+	// Check if object's mass is finite
 	inline bool HasFiniteMass() const { return _inverseMass > 0.0f; }
 };
 

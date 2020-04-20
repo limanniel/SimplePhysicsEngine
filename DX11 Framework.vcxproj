@@ -377,6 +377,7 @@
     <ClCompile Include="Source\ParticleModel.cpp" />
     <ClCompile Include="Source\pmGameObject.cpp" />
     <ClCompile Include="Source\rbGameObject.cpp" />
+    <ClCompile Include="Source\RigidBody.cpp" />
     <ClCompile Include="Source\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -392,8 +393,10 @@
     <ClInclude Include="Source\GameObject.h" />
     <ClInclude Include="Source\ParticleModel.h" />
     <ClInclude Include="Source\pmGameObject.h" />
+    <ClInclude Include="Source\Quaternion.h" />
     <ClInclude Include="Source\rbGameObject.h" />
     <CLInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\RigidBody.h" />
     <ClInclude Include="Source\Transform.h" />
     <ResourceCompile Include="Source\DX11 Framework.rc" />
   </ItemGroup>

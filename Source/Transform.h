@@ -10,24 +10,28 @@ private:
 	DirectX::SimpleMath::Vector3 _rotation;
 	DirectX::SimpleMath::Vector3 _scale;
 
-	DirectX::SimpleMath::Matrix _worldMatrix;
-
 public:
 	Transform(const DirectX::SimpleMath::Vector3& position,
 			  const DirectX::SimpleMath::Vector3& rotation,
 			  const DirectX::SimpleMath::Vector3& scale);
 	~Transform();
 
-	void Update(float deltaTime);
-
+	// Position
 	inline void SetPosition(const DirectX::SimpleMath::Vector3& position) { _position = position; }
-	inline void SetRotation(const DirectX::SimpleMath::Vector3& rotation) { _rotation = rotation; }
-	inline void SetScale(const DirectX::SimpleMath::Vector3& scale) { _scale = scale; }
-
 	inline DirectX::SimpleMath::Vector3 GetPosition() const { return _position; }
-	inline DirectX::SimpleMath::Vector3 GetRotation() const { return _rotation; }
-	inline DirectX::SimpleMath::Vector3 GetScale() const { return _scale; }
+	DirectX::SimpleMath::Matrix GetPositionMatrix() const;
 
-	inline DirectX::SimpleMath::Matrix GetWorldMatrix() const { return _worldMatrix; }
+	// Rotation
+	inline void SetRotation(const DirectX::SimpleMath::Vector3& rotation) { _rotation = rotation; }
+	inline DirectX::SimpleMath::Vector3 GetRotation() const { return _rotation; }
+	DirectX::SimpleMath::Matrix GetRotationMatrix() const;
+
+	// Scale
+	inline void SetScale(const DirectX::SimpleMath::Vector3& scale) { _scale = scale; }
+	inline DirectX::SimpleMath::Vector3 GetScale() const { return _scale; }
+	DirectX::SimpleMath::Matrix GetScaleMatrix() const;
+
+	// Get Transformation Matrix (Scale * Rotation * Position)
+	DirectX::SimpleMath::Matrix GetTransformMatrix() const;
 };
 

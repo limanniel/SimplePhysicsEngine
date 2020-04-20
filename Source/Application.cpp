@@ -6,6 +6,7 @@
 
 using namespace DirectX;
 using DirectX::SimpleMath::Vector3;
+using DirectX::SimpleMath::Matrix;
 using Microsoft::WRL::ComPtr;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -687,15 +688,22 @@ void Application::PrepareObjects()
 #pragma endregion FloorInit
 
 #pragma region CubesInit
+	Matrix cubeTensor = Matrix::Identity;
+	cubeTensor._11 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
+	cubeTensor._22 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
+	cubeTensor._33 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
+
+
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		pmGameObject* cubeObject = new pmGameObject(Vector3(-4.0f + (i * 2.0f), 0.5f, 10.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 0.5f, 10.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
 													shinyMaterial);
 
-		cubeObject->GetParticleModel()->SetMass(10.0f);
+		cubeObject->GetRigidBody()->SetMass(10.0f);
+		cubeObject->GetRigidBody()->SetInertiaTensor(cubeTensor);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
 		_gameObjects.push_back(cubeObject);
@@ -706,8 +714,11 @@ void Application::PrepareObjects()
 void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
-	pmGameObject* object = static_cast<pmGameObject*>(_gameObjects[objectNumber]);
-	object->GetParticleModel()->AddForce(force);
+	//pmGameObject* object = static_cast<pmGameObject*>(_gameObjects[objectNumber]);
+	//object->GetParticleModel()->AddForce(force);
+
+	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
+	rbObject->GetRigidBody()->AddForce(force, Vector3(0.1f, 0.0f, 0.1f));
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -717,12 +728,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(0.0f, 0.0f, -5.00f));
+		moveObject(1, Vector3(0.0f, -1.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(0.0f, 0.0f, 5.00f));
+		moveObject(1, Vector3(0.0f, 1.0f, 0.0f));
 	}
 
 	UpdateCamera();
@@ -808,7 +819,7 @@ void Application::Draw()
 		cb.surface.SpecularMtrl = material.specular;
 
 		// Set world matrix
-		cb.World = XMMatrixTranspose(gameObject->GetTransform()->GetWorldMatrix());
+		cb.World = XMMatrixTranspose(gameObject->GetWorldMatrix());
 
 		// Set texture
 		if (gameObject->GetAppearance()->HasTexture())
