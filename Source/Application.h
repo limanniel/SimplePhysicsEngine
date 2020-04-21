@@ -22,6 +22,7 @@
 #include "Camera.h"
 #include "pmGameObject.h"
 #include "rbGameObject.h"
+#include "ParticleSystem.h"
 #include "DebugDraw.h"
 
 constexpr int AMOUNT_OF_CUBES = 5;
@@ -63,6 +64,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>             _pPlaneIndexBuffer;
 
 	std::vector<GameObject*>						 _gameObjects;
+	ParticleSystem*									 _particleSystem;
 
 	Light	 _basicLight;
 	Camera * _camera;

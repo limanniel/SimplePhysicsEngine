@@ -36,6 +36,10 @@ public:
 	Appearance(const Geometry& geometry,
 			   const Material& material);
 
+	Appearance(const Geometry& geometry,
+			   const Material& material,
+			   ID3D11ShaderResourceView* texture);
+
 	~Appearance();
 
 	inline void SetTextureRV(ID3D11ShaderResourceView* textureRV) { _textureRV = textureRV; }

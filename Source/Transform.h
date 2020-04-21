@@ -14,6 +14,9 @@ public:
 	Transform(const DirectX::SimpleMath::Vector3& position,
 			  const DirectX::SimpleMath::Vector3& rotation,
 			  const DirectX::SimpleMath::Vector3& scale);
+	
+	Transform(const Transform& transform);
+
 	~Transform();
 
 	// Position

@@ -5,7 +5,7 @@
 
 class pmGameObject : public GameObject
 {
-private:
+protected:
 	ParticleModel* _particle;
 
 public:
@@ -16,6 +16,12 @@ public:
 				 const Material& material,
 				 const DirectX::SimpleMath::Vector3& initialVelocity = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f),
 				 const DirectX::SimpleMath::Vector3& initialAcceleration = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
+
+	pmGameObject(Transform* transform,
+				 Appearance* appearance,
+				 const DirectX::SimpleMath::Vector3& initialVelocity = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f),
+				 const DirectX::SimpleMath::Vector3& initialAcceleration = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
+
 	~pmGameObject();
 
 	void Update(float deltaTime) override;

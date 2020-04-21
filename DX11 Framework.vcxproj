@@ -380,7 +380,9 @@
     <ClCompile Include="Source\ImGUI\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\ImGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="Source\ImGUI\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Particle.cpp" />
     <ClCompile Include="Source\ParticleModel.cpp" />
+    <ClCompile Include="Source\ParticleSystem.cpp" />
     <ClCompile Include="Source\pmGameObject.cpp" />
     <ClCompile Include="Source\rbGameObject.cpp" />
     <ClCompile Include="Source\RigidBody.cpp" />
@@ -407,7 +409,9 @@
     <ClInclude Include="Source\ImGUI\imstb_rectpack.h" />
     <ClInclude Include="Source\ImGUI\imstb_textedit.h" />
     <ClInclude Include="Source\ImGUI\imstb_truetype.h" />
+    <ClInclude Include="Source\Particle.h" />
     <ClInclude Include="Source\ParticleModel.h" />
+    <ClInclude Include="Source\ParticleSystem.h" />
     <ClInclude Include="Source\pmGameObject.h" />
     <ClInclude Include="Source\Quaternion.h" />
     <ClInclude Include="Source\rbGameObject.h" />

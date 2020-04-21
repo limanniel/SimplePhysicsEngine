@@ -16,6 +16,17 @@ pmGameObject::pmGameObject(const Vector3& position,
 								  initialAcceleration);
 }
 
+pmGameObject::pmGameObject(Transform* transform,
+						   Appearance* appearance,
+						   const Vector3& initialVelocity,
+						   const Vector3& initialAcceleration)
+	: GameObject(transform, appearance)
+{
+	_particle = new ParticleModel(*_transform,
+								  initialVelocity,
+								  initialAcceleration);
+}
+
 pmGameObject::~pmGameObject()
 {
 	delete _particle;

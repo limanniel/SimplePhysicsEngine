@@ -100,6 +100,8 @@ Application::Application()
 	_cameraOrbitAngleXZ = -90.0f;
 	_cameraSpeed = 2.0f;
 
+	_particleSystem = nullptr;
+
 	// Set-up spdlog
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	auto logger = std::make_shared<spdlog::logger>("LOGGER", sink);
@@ -648,6 +650,9 @@ void Application::Cleanup()
 	delete _debugDraw;
 	_debugDraw = nullptr;
 
+	delete _particleSystem;
+	_particleSystem = nullptr;
+
 	if (_camera)
 	{
 		delete _camera;
@@ -740,6 +745,11 @@ void Application::PrepareObjects()
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
+
+	_particleSystem = new ParticleSystem(50,
+										 2.0f,
+										 new Transform(Vector3(), Vector3(), Vector3(0.25f, 0.25f, 0.25f)),
+										 new Appearance(cubeGeometry, shinyMaterial, _pTextureRV.Get()));
 }
 
 void Application::moveObject(int objectNumber,
@@ -771,6 +781,8 @@ void Application::Update(const DX::StepTimer& timer)
 	{
 		gameObject->Update(deltaTime);
 	}
+
+	_particleSystem->Update(deltaTime);
 }
 
 void Application::UpdateCamera()
@@ -868,10 +880,12 @@ void Application::Draw()
 	}
 
 	// Draw Debug Bounding Spheres
-	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
-	{
-		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
-	}
+	//for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
+	//{
+	//	_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
+	//}
+
+	_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
 
 	// ImGUI Window
 	ImGui::Begin("Debug Console");

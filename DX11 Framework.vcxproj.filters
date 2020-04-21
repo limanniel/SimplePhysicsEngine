@@ -24,6 +24,15 @@
     <Filter Include="Source\GameObjects">
       <UniqueIdentifier>{5ae9966b-2e60-4b42-b389-19b4fc4da395}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGUI">
+      <UniqueIdentifier>{37b13bf0-e2fc-4e6b-b5b4-c7ddee909edf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Particle System">
+      <UniqueIdentifier>{bd1f4e3d-ec4e-4f6a-ac1e-b6df9658772f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Particle System">
+      <UniqueIdentifier>{fc91e987-bdd7-4f4f-98a5-26d1b10f8a9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="Source\resource.h">
@@ -65,14 +74,36 @@
     <ClInclude Include="Source\DebugDraw.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ImGUI\imstb_truetype.h" />
-    <ClInclude Include="Source\ImGUI\imconfig.h" />
-    <ClInclude Include="Source\ImGUI\imgui.h" />
-    <ClInclude Include="Source\ImGUI\imgui_impl_dx11.h" />
-    <ClInclude Include="Source\ImGUI\imgui_impl_win32.h" />
-    <ClInclude Include="Source\ImGUI\imgui_internal.h" />
-    <ClInclude Include="Source\ImGUI\imstb_rectpack.h" />
-    <ClInclude Include="Source\ImGUI\imstb_textedit.h" />
+    <ClInclude Include="Source\ImGUI\imstb_truetype.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imconfig.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imgui.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imgui_impl_dx11.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imgui_impl_win32.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imgui_internal.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imstb_rectpack.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGUI\imstb_textedit.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParticleSystem.h">
+      <Filter>Headers\Particle System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Particle.h">
+      <Filter>Headers\Particle System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -106,11 +137,27 @@
     <ClCompile Include="Source\DebugDraw.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ImGUI\imgui.cpp" />
-    <ClCompile Include="Source\ImGUI\imgui_draw.cpp" />
-    <ClCompile Include="Source\ImGUI\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Source\ImGUI\imgui_impl_win32.cpp" />
-    <ClCompile Include="Source\ImGUI\imgui_widgets.cpp" />
+    <ClCompile Include="Source\ImGUI\imgui.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGUI\imgui_draw.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGUI\imgui_impl_dx11.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGUI\imgui_impl_win32.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGUI\imgui_widgets.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ParticleSystem.cpp">
+      <Filter>Source\Particle System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Particle.cpp">
+      <Filter>Source\Particle System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DX11 Framework.fx">
