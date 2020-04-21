@@ -11,6 +11,8 @@ rbGameObject::rbGameObject(const DirectX::SimpleMath::Vector3& position,
     _rigidBody = new RigidBody(*_transform,
                                initialVelocity,
                                initialAcceleration);
+
+    _boundingSphereRadius = 0.0f;
 }
 
 rbGameObject::~rbGameObject()

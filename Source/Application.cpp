@@ -173,6 +173,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	_stepTimer.SetFixedTimeStep(true);
 	_stepTimer.SetTargetElapsedSeconds(1.0f / 60.0f);
 
+	_debugDraw = new DebugDraw(_pd3dDevice.Get(), _pImmediateContext.Get());
+
 	return S_OK;
 }
 
@@ -618,6 +620,9 @@ HRESULT Application::InitDevice()
 
 void Application::Cleanup()
 {
+	delete _debugDraw;
+	_debugDraw = nullptr;
+
 	if (_camera)
 	{
 		delete _camera;
@@ -704,6 +709,7 @@ void Application::PrepareObjects()
 
 		cubeObject->GetRigidBody()->SetMass(10.0f);
 		cubeObject->GetRigidBody()->SetInertiaTensor(cubeTensor);
+		cubeObject->SetBoudningSphereRadius(0.5f);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
 		_gameObjects.push_back(cubeObject);
@@ -714,9 +720,6 @@ void Application::PrepareObjects()
 void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
-	//pmGameObject* object = static_cast<pmGameObject*>(_gameObjects[objectNumber]);
-	//object->GetParticleModel()->AddForce(force);
-
 	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
 	rbObject->GetRigidBody()->AddForce(force, Vector3(0.1f, 0.0f, 0.1f));
 }
@@ -832,6 +835,12 @@ void Application::Draw()
 
 		// Draw object
 		gameObject->Render(_pImmediateContext.Get());
+	}
+
+	// Draw Debug Bounding Spheres
+	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
+	{
+		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
 	}
 
     // Present our back buffer to our front buffer

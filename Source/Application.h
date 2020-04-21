@@ -9,53 +9,16 @@
 #include <vector>
 #include <StepTimer.h>
 #include <SimpleMath.h>
+
 #include <DDSTextureLoader.h>
 #include <wrl/client.h>
 
+#include "Commons.h"
 #include "resource.h"
 #include "Camera.h"
 #include "pmGameObject.h"
 #include "rbGameObject.h"
-
-#pragma region Structs
-struct SimpleVertex
-{
-    XMFLOAT3 PosL;
-	XMFLOAT3 NormL;
-	XMFLOAT2 Tex;
-};
-
-struct SurfaceInfo
-{
-	XMFLOAT4 AmbientMtrl;
-	XMFLOAT4 DiffuseMtrl;
-	XMFLOAT4 SpecularMtrl;
-};
-
-struct Light
-{
-	XMFLOAT4 AmbientLight;
-	XMFLOAT4 DiffuseLight;
-	XMFLOAT4 SpecularLight;
-
-	float SpecularPower;
-	XMFLOAT3 LightVecW;
-};
-
-struct ConstantBuffer
-{
-	XMMATRIX World;
-	XMMATRIX View;
-	XMMATRIX Projection;
-	
-	SurfaceInfo surface;
-
-	Light light;
-
-	XMFLOAT3 EyePosW;
-	float HasTexture;
-};
-#pragma endregion Structs
+#include "DebugDraw.h"
 
 constexpr int AMOUNT_OF_CUBES = 5;
 
@@ -94,6 +57,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>             _pIndexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>             _pPlaneVertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>             _pPlaneIndexBuffer;
+
 	std::vector<GameObject*>						 _gameObjects;
 
 	Light	 _basicLight;
@@ -103,6 +67,8 @@ private:
 	float	 _cameraOrbitRadiusMax;
 	float	 _cameraOrbitAngleXZ;
 	float	 _cameraSpeed;
+
+	DebugDraw* _debugDraw;
 
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);

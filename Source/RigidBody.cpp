@@ -26,7 +26,7 @@ RigidBody::~RigidBody()
 
 void RigidBody::Integrate(float deltaTime)
 {
-	// Skip integration, particle has infinite mass
+	// Skip integration, if particle has infinite mass
 	if (_inverseMass <= 0.0f) return;
 
 	// Calculate Acceleration

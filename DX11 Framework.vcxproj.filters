@@ -59,6 +59,12 @@
     <ClInclude Include="Source\Quaternion.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Commons.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DebugDraw.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -87,6 +93,9 @@
       <Filter>Source\GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DebugDraw.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

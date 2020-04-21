@@ -7,6 +7,7 @@ class rbGameObject : public GameObject
 {
 private:
 	RigidBody* _rigidBody;
+	float	   _boundingSphereRadius;
 
 public:
 	rbGameObject(const DirectX::SimpleMath::Vector3& position,
@@ -21,5 +22,8 @@ public:
 	void Update(float deltaTime) override;
 
 	RigidBody* GetRigidBody() const { return _rigidBody; }
+
+	inline void SetBoudningSphereRadius(float radius) { _boundingSphereRadius = radius; }
+	inline float GetBoundingSphereRadius() const { return _boundingSphereRadius; }
 };
 
