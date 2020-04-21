@@ -13,6 +13,10 @@
 #include <DDSTextureLoader.h>
 #include <wrl/client.h>
 
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+
 #include "Commons.h"
 #include "resource.h"
 #include "Camera.h"
@@ -73,11 +77,13 @@ private:
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 	HRESULT InitDevice();
-	void Cleanup();
 	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 	HRESULT InitShadersAndInputLayout();
 	HRESULT InitVertexBuffer();
 	HRESULT InitIndexBuffer();
+
+	void InitImGUI();
+	void Cleanup();
 
 	void Update(const DX::StepTimer& timer);
 	void UpdateCamera();
