@@ -9,7 +9,7 @@ DebugDraw::DebugDraw(ID3D11Device* device,
     _active = true;
 
     _commonStates = std::make_unique<CommonStates>(device);
-    _boundingSphere = GeometricPrimitive::CreateSphere(context, 1.0f, 4, false);
+    _boundingSphere = GeometricPrimitive::CreateSphere(context, 0.8f, 4, false);
 }
 
 DebugDraw::~DebugDraw()
@@ -26,7 +26,7 @@ void DebugDraw::DrawBoundingSphere(ID3D11DeviceContext* context,
     if (_active)
     {
         XMMATRIX world = XMMatrixIdentity();
-        world *= XMMatrixScaling(1.0f + radius.x, 1.0f + radius.y, 1.0f + radius.z);
+        world *= XMMatrixScaling(0.8f + radius.x, 0.8f + radius.y, 0.8f + radius.z);
         world *= XMMatrixTranslation(position.x, position.y, position.z);
 
 	    XMMATRIX view = XMMatrixTranspose(cb.View);
