@@ -36,6 +36,12 @@ public:
 	Appearance(const Geometry& geometry,
 			   const Material& material);
 
+	Appearance(const Geometry& geometry,
+			   const Material& material,
+			   ID3D11ShaderResourceView* texture);
+
+	Appearance(const Appearance& appearance);
+
 	~Appearance();
 
 	inline void SetTextureRV(ID3D11ShaderResourceView* textureRV) { _textureRV = textureRV; }
@@ -44,5 +50,7 @@ public:
 
 	inline Geometry GetGeometry() const { return _geometry; }
 	inline Material GetMaterial() const { return _material; }
+
+	inline void SetDiffuseColour(const DirectX::XMFLOAT4& colour) { _material.diffuse = colour; }
 };
 

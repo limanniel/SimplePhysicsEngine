@@ -65,7 +65,7 @@ void RigidBody::ResetForces()
 void RigidBody::AddForce(const DirectX::SimpleMath::Vector3& force,
 						 const DirectX::SimpleMath::Vector3& point)
 {
-	//_forceAccumulator += force;
+	_forceAccumulator += force;
 	_torqueAccumulator += point.Cross(force);
 }
 

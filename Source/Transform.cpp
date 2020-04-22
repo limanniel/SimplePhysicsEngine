@@ -12,6 +12,13 @@ Transform::Transform(const Vector3& position,
 {
 }
 
+Transform::Transform(const Transform& transform)
+    : _position(transform._position),
+      _rotation(transform._rotation),
+      _scale(transform._scale)
+{
+}
+
 Transform::~Transform()
 {
 }

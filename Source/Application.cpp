@@ -9,10 +9,14 @@ using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
 using Microsoft::WRL::ComPtr;
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
+
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
 
 	switch (message)
 	{
@@ -96,6 +100,8 @@ Application::Application()
 	_cameraOrbitAngleXZ = -90.0f;
 	_cameraSpeed = 2.0f;
 
+	_particleSystem = nullptr;
+
 	// Set-up spdlog
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	auto logger = std::make_shared<spdlog::logger>("LOGGER", sink);
@@ -125,6 +131,10 @@ Application::~Application()
 	_pIndexBuffer.Reset();
 	_pPlaneVertexBuffer.Reset();
 	_pPlaneIndexBuffer.Reset();
+
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 
 	Cleanup();
 }
@@ -172,6 +182,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	// Set Fixed-Time Step for framerate (locked 60fps)
 	_stepTimer.SetFixedTimeStep(true);
 	_stepTimer.SetTargetElapsedSeconds(1.0f / 60.0f);
+
+	InitImGUI();
 
 	_debugDraw = new DebugDraw(_pd3dDevice.Get(), _pImmediateContext.Get());
 
@@ -616,12 +628,30 @@ HRESULT Application::InitDevice()
 	return S_OK;
 }
 
+void Application::InitImGUI()
+{
+	// Set-up Context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	//Style
+	ImGui::StyleColorsDark();
+
+	// Render/Platform Bindings
+	ImGui_ImplWin32_Init(_hWnd);
+	ImGui_ImplDX11_Init(_pd3dDevice.Get(), _pImmediateContext.Get());
+}
+
 #pragma endregion Initialise
 
 void Application::Cleanup()
 {
 	delete _debugDraw;
 	_debugDraw = nullptr;
+
+	delete _particleSystem;
+	_particleSystem = nullptr;
 
 	if (_camera)
 	{
@@ -715,13 +745,18 @@ void Application::PrepareObjects()
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
+
+	_particleSystem = new ParticleSystem(50,
+										 2.0f,
+										 new Transform(Vector3(), Vector3(), Vector3(0.25f, 0.25f, 0.25f)),
+										 new Appearance(cubeGeometry, shinyMaterial, _pTextureRV.Get()));
 }
 
 void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
 	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
-	rbObject->GetRigidBody()->AddForce(force, Vector3(0.1f, 0.0f, 0.1f));
+	rbObject->GetRigidBody()->AddForce(force, Vector3(0.0f, 0.0f, 0.0f));
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -731,12 +766,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(0.0f, -1.0f, 0.0f));
+		moveObject(1, Vector3(3.0f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(0.0f, 1.0f, 0.0f));
+		moveObject(1, Vector3(-3.0f, 0.0f, 0.0f));
 	}
 
 	UpdateCamera();
@@ -746,6 +781,8 @@ void Application::Update(const DX::StepTimer& timer)
 	{
 		gameObject->Update(deltaTime);
 	}
+
+	_particleSystem->Update(deltaTime);
 }
 
 void Application::UpdateCamera()
@@ -768,6 +805,11 @@ void Application::PrepareDraw()
 	float ClearColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f }; // red,green,blue,alpha
 	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView.Get(), ClearColor);
 	_pImmediateContext->ClearDepthStencilView(_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	// ImGUI New Frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
 	// Setup buffers and render scene
 	_pImmediateContext->IASetInputLayout(_pVertexLayout.Get());
@@ -838,10 +880,21 @@ void Application::Draw()
 	}
 
 	// Draw Debug Bounding Spheres
-	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
-	{
-		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
-	}
+	//for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
+	//{
+	//	_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
+	//}
+
+	_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
+
+	// ImGUI Window
+	ImGui::Begin("Debug Console");
+	ImGui::Text("FPS: %d", _stepTimer.GetFramesPerSecond());
+	ImGui::End();
+
+	// Render ImGUI
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // Present our back buffer to our front buffer
     _pSwapChain->Present(0, 0);

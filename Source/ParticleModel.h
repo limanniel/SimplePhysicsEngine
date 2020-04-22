@@ -19,7 +19,6 @@ protected:
 
 protected:
 	virtual void Integrate(float deltaTime);
-	virtual void ResetForces();
 
 public:
 	ParticleModel(Transform& transform,
@@ -31,6 +30,7 @@ public:
 	void Update(float deltaTime);
 
 	void AddForce(const DirectX::SimpleMath::Vector3& force);
+	virtual void ResetForces();
 
 	void MoveConstVelocity(float deltaTime);
 	void MoveConstAcceleration(float deltaTime);
