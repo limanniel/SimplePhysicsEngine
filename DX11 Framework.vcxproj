@@ -398,6 +398,7 @@
     <ClInclude Include="Source\Appearance.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\CollisionResponse.h" />
     <ClInclude Include="Source\Commons.h" />
     <ClInclude Include="Source\DebugDraw.h" />
     <ClInclude Include="Source\GameObject.h" />

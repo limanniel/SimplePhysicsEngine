@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "spdlog.h"
 #include "sinks/msvc_sink.h"
+#include "CollisionResponse.h"
 
 using namespace DirectX;
 using DirectX::SimpleMath::Vector3;
@@ -766,12 +767,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(3.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(30.0f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(-3.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(-30.0f, 0.0f, 0.0f));
 	}
 
 	UpdateCamera();
@@ -780,6 +781,28 @@ void Application::Update(const DX::StepTimer& timer)
 	for (auto gameObject : _gameObjects)
 	{
 		gameObject->Update(deltaTime);
+
+		for (auto gameObject2 : _gameObjects)
+		{
+			// Check if not the same object
+			if (gameObject == gameObject2) continue;
+
+			rbGameObject* obj1 = static_cast<rbGameObject*>(gameObject);
+			if (obj1->GetBoundingSphereRadius() > 0.0f)
+			{
+				rbGameObject* obj2 = static_cast<rbGameObject*>(gameObject2);
+
+				if (obj2->GetBoundingSphereRadius() > 0.0f)
+				{
+					CollisionResponse::CollisionManifold collision = CollisionResponse::FindCollisionsFeatures(*obj1, *obj2);
+
+					if (!collision.contacts.empty())
+					{
+						CollisionResponse::ResolveCollisionManifold(&collision);
+					}
+				}		
+			}
+		}
 	}
 
 	_particleSystem->Update(deltaTime);
@@ -879,13 +902,14 @@ void Application::Draw()
 		gameObject->Render(_pImmediateContext.Get());
 	}
 
-	// Draw Debug Bounding Spheres
-	//for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
-	//{
-	//	_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
-	//}
-
 	_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
+
+	// Draw Debug Bounding Spheres
+	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
+	{
+		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
+	}
+
 
 	// ImGUI Window
 	ImGui::Begin("Debug Console");
