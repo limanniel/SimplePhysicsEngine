@@ -11,7 +11,6 @@ Particle::Particle(float life,
 
 Particle::~Particle()
 {
-    delete _transform;
 }
 
 void Particle::Update(float deltaTime)

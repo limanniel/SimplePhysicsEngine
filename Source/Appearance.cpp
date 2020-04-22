@@ -16,6 +16,16 @@ Appearance::Appearance(const Geometry& geometry,
     _textureRV = texture;
 }
 
+Appearance::Appearance(const Appearance& appearance)
+    : _geometry(appearance._geometry),
+      _material(appearance._material)
+{
+    if (appearance._textureRV)
+    {
+        _textureRV = appearance._textureRV;
+    }
+}
+
 Appearance::~Appearance()
 {
     _textureRV.Reset();
