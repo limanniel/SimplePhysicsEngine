@@ -3,7 +3,6 @@
 #include "Application.h"
 #include "spdlog.h"
 #include "sinks/msvc_sink.h"
-#include "CollisionResponse.h"
 
 using namespace DirectX;
 using DirectX::SimpleMath::Vector3;
@@ -102,6 +101,7 @@ Application::Application()
 	_cameraSpeed = 2.0f;
 
 	_particleSystem = nullptr;
+	_forceRegistry = new ForceRegistry;
 
 	// Set-up spdlog
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -648,6 +648,9 @@ void Application::InitImGUI()
 
 void Application::Cleanup()
 {
+	delete _forceRegistry;
+	_forceRegistry = nullptr;
+
 	delete _debugDraw;
 	_debugDraw = nullptr;
 
@@ -732,7 +735,7 @@ void Application::PrepareObjects()
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 0.5f, 10.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 5.5f, 10.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
@@ -746,6 +749,10 @@ void Application::PrepareObjects()
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
+
+	auto rbObj = static_cast<rbGameObject*>(_gameObjects[1]);
+	_forceRegistry->Add(rbObj->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -0.4f, 0.0f)));
+	_forceRegistry->Add(rbObj->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -776,7 +783,7 @@ void Application::Update(const DX::StepTimer& timer)
 	}
 
 	UpdateCamera();
-
+	
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
@@ -784,28 +791,12 @@ void Application::Update(const DX::StepTimer& timer)
 
 		for (auto gameObject2 : _gameObjects)
 		{
-			// Check if not the same object
-			if (gameObject == gameObject2) continue;
-
-			rbGameObject* obj1 = static_cast<rbGameObject*>(gameObject);
-			if (obj1->GetBoundingSphereRadius() > 0.0f)
-			{
-				rbGameObject* obj2 = static_cast<rbGameObject*>(gameObject2);
-
-				if (obj2->GetBoundingSphereRadius() > 0.0f)
-				{
-					CollisionResponse::CollisionManifold collision = CollisionResponse::FindCollisionsFeatures(*obj1, *obj2);
-
-					if (!collision.contacts.empty())
-					{
-						CollisionResponse::ResolveCollisionManifold(&collision);
-					}
-				}		
-			}
+			_collisionSystem.Update(*(rbGameObject*)gameObject, *(rbGameObject*)gameObject2);
 		}
 	}
 
 	_particleSystem->Update(deltaTime);
+	_forceRegistry->Update(deltaTime);
 }
 
 void Application::UpdateCamera()

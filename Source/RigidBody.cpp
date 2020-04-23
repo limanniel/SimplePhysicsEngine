@@ -53,7 +53,7 @@ void RigidBody::Integrate(float deltaTime)
 void RigidBody::CalculateTransformation()
 {
 	_orientation.normalise();
-	CalculateTransformMatrixColumnMajor((XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
+	CalculateTransformMatrixColumnMajor((DirectX::XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
 }
 
 void RigidBody::ResetForces()

@@ -8,6 +8,7 @@
 #include "rbGameObject.h"
 
 using DirectX::SimpleMath::Matrix;
+using DirectX::SimpleMath::Vector3;
 
 namespace CollisionResponse
 {
@@ -83,7 +84,7 @@ namespace CollisionResponse
 		// Objects moving apart, abort
 		if (relativeVelocity.Dot(relativeNormal) > 0.0f) return;
 
-		float coef = 1.0f;
+		float coef = 0.5f;
 		float numerator = (-(1.0f + coef) * relativeVelocity.Dot(relativeNormal));
 
 		float d1 = invMassSum;
@@ -105,5 +106,37 @@ namespace CollisionResponse
 
 		collision->body[1]->SetVelocty(collision->body[1]->GetVelocity() + impulse * invMass2);
 		collision->body[1]->SetAngularVelocity(collision->body[1]->GetAngularVelocity() - (Vector3)XMVector3Transform(r2.Cross(impulse), i2));
+	}
+
+	static void linearResolveCollisionManifold(CollisionManifold* collision)
+	{
+		float invMass1 = collision->body[0]->GetInverseMass();
+		float invMass2 = collision->body[1]->GetInverseMass();
+		float invMassSum = invMass1 + invMass2;
+
+		// Abort, if detected infinite mass
+		if (invMassSum <= 0.0f) return;
+
+		Vector3 relativeVelocity = collision->body[1]->GetVelocity() - collision->body[0]->GetVelocity();
+
+		Vector3 relativeNormal = collision->normal;
+		relativeNormal.Normalize();
+
+		// Objects moving apart, abort
+		if (relativeVelocity.Dot(relativeNormal) > 0.0f) return;
+
+		float coef = 1.0f;
+		float numerator = (-(1.0f + coef) * relativeVelocity.Dot(relativeNormal));
+
+		float impulseMagnitude = numerator / invMassSum;
+		if (!collision->contacts.empty() && impulseMagnitude != 0.0f)
+		{
+			impulseMagnitude /= (float)collision->contacts.size();
+		}
+
+		// Calculate and apply impulse
+		Vector3 impulse = relativeNormal * impulseMagnitude;
+		collision->body[0]->SetVelocty(collision->body[0]->GetVelocity() - impulse * invMass1);
+		collision->body[1]->SetVelocty(collision->body[1]->GetVelocity() + impulse * invMass2);
 	}
 }

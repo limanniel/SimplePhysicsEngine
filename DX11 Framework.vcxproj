@@ -373,8 +373,12 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Source\CollisionSystem.cpp" />
     <ClCompile Include="Source\DebugDraw.cpp" />
+    <ClCompile Include="Source\DragGenerator.cpp" />
+    <ClCompile Include="Source\ForceRegistry.cpp" />
     <ClCompile Include="Source\GameObject.cpp" />
+    <ClCompile Include="Source\GravityGenerator.cpp" />
     <ClCompile Include="Source\ImGUI\imgui.cpp" />
     <ClCompile Include="Source\ImGUI\imgui_draw.cpp" />
     <ClCompile Include="Source\ImGUI\imgui_impl_dx11.cpp" />
@@ -399,9 +403,14 @@
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\CollisionResponse.h" />
+    <ClInclude Include="Source\CollisionSystem.h" />
     <ClInclude Include="Source\Commons.h" />
     <ClInclude Include="Source\DebugDraw.h" />
+    <ClInclude Include="Source\DragGenerator.h" />
+    <ClInclude Include="Source\ForceGenerator.h" />
+    <ClInclude Include="Source\ForceRegistry.h" />
     <ClInclude Include="Source\GameObject.h" />
+    <ClInclude Include="Source\GravityGenerator.h" />
     <ClInclude Include="Source\ImGUI\imconfig.h" />
     <ClInclude Include="Source\ImGUI\imgui.h" />
     <ClInclude Include="Source\ImGUI\imgui_impl_dx11.h" />
