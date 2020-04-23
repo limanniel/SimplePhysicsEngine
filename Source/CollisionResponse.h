@@ -4,7 +4,10 @@
 #include <SimpleMath.h>
 #include <vector>
 
+#include "Quaternion.h"
 #include "rbGameObject.h"
+
+using DirectX::SimpleMath::Matrix;
 
 namespace CollisionResponse
 {
@@ -17,6 +20,16 @@ namespace CollisionResponse
 		DirectX::SimpleMath::Vector3 normal{ Vector3::Zero };
 		std::vector< DirectX::SimpleMath::Vector3> contacts;
 	};
+
+	static Vector3 GetPositionFromMatrix(DirectX::SimpleMath::Matrix* transMat)
+	{
+		Vector3 vec = Vector3::Zero;
+		vec.x = transMat->_31;
+		vec.y = transMat->_32;
+		vec.z = transMat->_33;
+
+		return vec;
+	}
 
 	static CollisionManifold FindCollisionsFeatures(const rbGameObject& object1,
 													const rbGameObject& object2)
@@ -56,7 +69,13 @@ namespace CollisionResponse
 		// Abort, if detected infinite mass
 		if (invMassSum <= 0.0f) return;
 
-		Vector3 relativeVelocity = collision->body[1]->GetVelocity() - collision->body[0]->GetVelocity();
+		Vector3 r1 = collision->contacts[0] - GetPositionFromMatrix(&collision->body[0]->GetTransformMatrix());
+		Vector3 r2 = collision->contacts[0] - GetPositionFromMatrix(&collision->body[1]->GetTransformMatrix());
+
+		Matrix i1 = collision->body[0]->GetInverseInertiaTensor();
+		Matrix i2 = collision->body[1]->GetInverseInertiaTensor();
+
+		Vector3 relativeVelocity = (collision->body[1]->GetVelocity() + collision->body[1]->GetAngularVelocity().Cross(r2)) - (collision->body[0]->GetVelocity() + collision->body[0]->GetAngularVelocity().Cross(r1));
 
 		Vector3 relativeNormal = collision->normal;
 		relativeNormal.Normalize();
@@ -67,15 +86,24 @@ namespace CollisionResponse
 		float coef = 1.0f;
 		float numerator = (-(1.0f + coef) * relativeVelocity.Dot(relativeNormal));
 
-		float impulseMagnitude = numerator / invMassSum;
-		if (!collision->contacts.empty() && impulseMagnitude != 0.0f)
+		float d1 = invMassSum;
+
+		Vector3 d2 = static_cast<Vector3>((XMVector3Transform(r1.Cross(relativeNormal), i1))).Cross(r1);
+		Vector3 d3 = static_cast<Vector3>((XMVector3Transform(r2.Cross(relativeNormal), i2))).Cross(r2);
+
+		float denominator = d1 + relativeNormal.Dot(d2 + d3);
+		float j = (denominator == 0.0f) ? 0.0f : numerator / denominator;
+
+		if (!collision->contacts.empty() && j != 0.0f)
 		{
-			impulseMagnitude /= (float)collision->contacts.size();
+			j /= (float)collision->contacts.size();
 		}
 
-		// Calculate and apply impulse
-		Vector3 impulse = relativeNormal * impulseMagnitude;
+		Vector3 impulse = relativeNormal * j;
 		collision->body[0]->SetVelocty(collision->body[0]->GetVelocity() - impulse * invMass1);
+		collision->body[0]->SetAngularVelocity(collision->body[0]->GetAngularVelocity() - (Vector3)XMVector3Transform(r1.Cross(impulse), i1));
+
 		collision->body[1]->SetVelocty(collision->body[1]->GetVelocity() + impulse * invMass2);
+		collision->body[1]->SetAngularVelocity(collision->body[1]->GetAngularVelocity() - (Vector3)XMVector3Transform(r2.Cross(impulse), i2));
 	}
 }

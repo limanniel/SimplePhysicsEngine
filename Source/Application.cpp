@@ -757,7 +757,7 @@ void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
 	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
-	rbObject->GetRigidBody()->AddForce(force, Vector3(0.0f, 0.0f, 0.0f));
+	rbObject->GetRigidBody()->AddForce(force, Vector3(0.1f, 0.1f, 0.0f));
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -767,12 +767,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(30.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(5.0f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(-30.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(-5.0f, 0.0f, 0.0f));
 	}
 
 	UpdateCamera();
