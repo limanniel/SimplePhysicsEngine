@@ -116,12 +116,6 @@
     <ClInclude Include="Source\Commons.h">
       <Filter>Headers\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CollisionResponse.h">
-      <Filter>Headers\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CollisionSystem.h">
-      <Filter>Headers\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DragGenerator.h">
       <Filter>Headers\ForceGenerators</Filter>
     </ClInclude>
@@ -133,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="Source\GravityGenerator.h">
       <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CollisionResponse.h">
+      <Filter>Headers\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -188,9 +185,6 @@
     <ClCompile Include="Source\DebugDraw.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CollisionSystem.cpp">
-      <Filter>Source\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DragGenerator.cpp">
       <Filter>Source\ForceGenerators</Filter>
     </ClCompile>
@@ -199,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="Source\GravityGenerator.cpp">
       <Filter>Source\ForceGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CollisionResponse.cpp">
+      <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

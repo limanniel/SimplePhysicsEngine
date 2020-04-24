@@ -373,7 +373,7 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Source\CollisionSystem.cpp" />
+    <ClCompile Include="Source\CollisionResponse.cpp" />
     <ClCompile Include="Source\DebugDraw.cpp" />
     <ClCompile Include="Source\DragGenerator.cpp" />
     <ClCompile Include="Source\ForceRegistry.cpp" />
@@ -403,7 +403,6 @@
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\CollisionResponse.h" />
-    <ClInclude Include="Source\CollisionSystem.h" />
     <ClInclude Include="Source\Commons.h" />
     <ClInclude Include="Source\DebugDraw.h" />
     <ClInclude Include="Source\DragGenerator.h" />

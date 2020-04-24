@@ -23,7 +23,6 @@
 #include "pmGameObject.h"
 #include "rbGameObject.h"
 #include "ParticleSystem.h"
-#include "CollisionSystem.h"
 #include "ForceRegistry.h"
 #include "DebugDraw.h"
 
@@ -69,7 +68,6 @@ private:
 	ParticleSystem*									 _particleSystem;
 
 	ForceRegistry									*_forceRegistry;
-	CollisionSystem									 _collisionSystem;
 
 	Light	 _basicLight;
 	Camera * _camera;
