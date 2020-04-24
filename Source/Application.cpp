@@ -791,7 +791,7 @@ void Application::Update(const DX::StepTimer& timer)
 
 		for (auto gameObject2 : _gameObjects)
 		{
-			// TODO Collision + Response
+			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);
 		}
 	}
 

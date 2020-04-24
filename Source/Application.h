@@ -24,6 +24,7 @@
 #include "rbGameObject.h"
 #include "ParticleSystem.h"
 #include "ForceRegistry.h"
+#include "CollisionResponse.h"
 #include "DebugDraw.h"
 
 constexpr int AMOUNT_OF_CUBES = 5;
@@ -68,6 +69,7 @@ private:
 	ParticleSystem*									 _particleSystem;
 
 	ForceRegistry									*_forceRegistry;
+	CollisionResponse								 _collisionResponse;
 
 	Light	 _basicLight;
 	Camera * _camera;
