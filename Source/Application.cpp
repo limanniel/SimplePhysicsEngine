@@ -750,6 +750,7 @@ void Application::PrepareObjects()
 	}
 #pragma endregion CubesInit
 
+	 _gameObjects[1]->GetTransform()->SetPosition(Vector3(_gameObjects[1]->GetTransform()->GetPosition().x, 1.0f, _gameObjects[1]->GetTransform()->GetPosition().z));
 	//auto rbObj = static_cast<rbGameObject*>(_gameObjects[1]);
 	//_forceRegistry->Add(rbObj->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -0.4f, 0.0f)));
 	//_forceRegistry->Add(rbObj->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
@@ -787,12 +788,14 @@ void Application::Update(const DX::StepTimer& timer)
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
-		gameObject->Update(deltaTime);
+
 
 		for (auto gameObject2 : _gameObjects)
 		{
 			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);
 		}
+
+		gameObject->Update(deltaTime);
 	}
 
 	//_particleSystem->Update(deltaTime);
