@@ -23,9 +23,6 @@
 #include <d3d11_1.h>
 #include <SimpleMath.h>
 
-using namespace DirectX;
-using SimpleMath::Vector3;
-
 class Quaternion
 {
 public:
@@ -137,7 +134,7 @@ public:
 	*
 	* @param scale The amount of the vector to add.
 	*/
-	void addScaledVector(const Vector3& vector, float scale)
+	void addScaledVector(const DirectX::SimpleMath::Vector3& vector, float scale)
 	{
 		Quaternion q(0,
 			vector.x * scale,
@@ -150,7 +147,7 @@ public:
 		k += q.k * 0.5f;
 	}
 
-	void rotateByVector(const Vector3& vector)
+	void rotateByVector(const DirectX::SimpleMath::Vector3& vector)
 	{
 		Quaternion q(0, vector.x, vector.y, vector.z);
 		(*this) *= q;
@@ -161,89 +158,89 @@ public:
 * Inline function that creates a transform matrix from a
 * position and orientation.
 */
-static inline void CalculateTransformMatrixColumnMajor(XMMATRIX &transformMatrix,
-	const Vector3 &position,
+static inline void CalculateTransformMatrixColumnMajor(DirectX::XMMATRIX &transformMatrix,
+	const DirectX::SimpleMath::Vector3 &position,
 	const Quaternion &orientation)
 {
-	transformMatrix.r[0] = XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j*orientation.j - 2 * orientation.k*orientation.k);
-	transformMatrix.r[0] = XMVectorSetY(transformMatrix.r[0], 2 * orientation.i*orientation.j -
+	transformMatrix.r[0] = DirectX::XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j*orientation.j - 2 * orientation.k*orientation.k);
+	transformMatrix.r[0] = DirectX::XMVectorSetY(transformMatrix.r[0], 2 * orientation.i*orientation.j -
 		2 * orientation.r*orientation.k);
-	transformMatrix.r[0] = XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i*orientation.k +
+	transformMatrix.r[0] = DirectX::XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i*orientation.k +
 		2 * orientation.r*orientation.j);
-	transformMatrix.r[0] = XMVectorSetW(transformMatrix.r[0], 0.0f);
+	transformMatrix.r[0] = DirectX::XMVectorSetW(transformMatrix.r[0], 0.0f);
 
-	transformMatrix.r[1] = XMVectorSetX(transformMatrix.r[1], 2 * orientation.i*orientation.j +
+	transformMatrix.r[1] = DirectX::XMVectorSetX(transformMatrix.r[1], 2 * orientation.i*orientation.j +
 		2 * orientation.r*orientation.k);
-	transformMatrix.r[1] = XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i*orientation.i -
+	transformMatrix.r[1] = DirectX::XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i*orientation.i -
 		2 * orientation.k*orientation.k);
-	transformMatrix.r[1] = XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j*orientation.k -
+	transformMatrix.r[1] = DirectX::XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j*orientation.k -
 		2 * orientation.r*orientation.i);
-	transformMatrix.r[1] = XMVectorSetW(transformMatrix.r[1], 0.0f);
+	transformMatrix.r[1] = DirectX::XMVectorSetW(transformMatrix.r[1], 0.0f);
 
-	transformMatrix.r[2] = XMVectorSetX(transformMatrix.r[2], 2 * orientation.i*orientation.k -
+	transformMatrix.r[2] = DirectX::XMVectorSetX(transformMatrix.r[2], 2 * orientation.i*orientation.k -
 		2 * orientation.r*orientation.j);
-	transformMatrix.r[2] = XMVectorSetY(transformMatrix.r[2], 2 * orientation.j*orientation.k +
+	transformMatrix.r[2] = DirectX::XMVectorSetY(transformMatrix.r[2], 2 * orientation.j*orientation.k +
 		2 * orientation.r*orientation.i);
-	transformMatrix.r[2] = XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i*orientation.i -
+	transformMatrix.r[2] = DirectX::XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i*orientation.i -
 		2 * orientation.j*orientation.j);
-	transformMatrix.r[2] = XMVectorSetW(transformMatrix.r[2], 0.0f);
+	transformMatrix.r[2] = DirectX::XMVectorSetW(transformMatrix.r[2], 0.0f);
 
-	transformMatrix.r[3] = XMVectorSetX(transformMatrix.r[3], position.x);
-	transformMatrix.r[3] = XMVectorSetY(transformMatrix.r[3], position.y);
-	transformMatrix.r[3] = XMVectorSetZ(transformMatrix.r[3], position.z);
-	transformMatrix.r[3] = XMVectorSetW(transformMatrix.r[3], 1.0f);
+	transformMatrix.r[3] = DirectX::XMVectorSetX(transformMatrix.r[3], position.x);
+	transformMatrix.r[3] = DirectX::XMVectorSetY(transformMatrix.r[3], position.y);
+	transformMatrix.r[3] = DirectX::XMVectorSetZ(transformMatrix.r[3], position.z);
+	transformMatrix.r[3] = DirectX::XMVectorSetW(transformMatrix.r[3], 1.0f);
 }
 
-static inline void CalculateTransformMatrixRowMajor(XMMATRIX &transformMatrix,
-	const Vector3 &position,
+static inline void CalculateTransformMatrixRowMajor(DirectX::XMMATRIX &transformMatrix,
+	const DirectX::SimpleMath::Vector3 &position,
 	const Quaternion &orientation)
 {
-	transformMatrix.r[0] = XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j*orientation.j - 2 * orientation.k*orientation.k);
-	transformMatrix.r[0] = XMVectorSetY(transformMatrix.r[0], 2 * orientation.i*orientation.j - 2 * orientation.r*orientation.k);
-	transformMatrix.r[0] = XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i*orientation.k + 2 * orientation.r*orientation.j);
-	transformMatrix.r[0] = XMVectorSetW(transformMatrix.r[0], 0.0f); 
+	transformMatrix.r[0] = DirectX::XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j*orientation.j - 2 * orientation.k*orientation.k);
+	transformMatrix.r[0] = DirectX::XMVectorSetY(transformMatrix.r[0], 2 * orientation.i*orientation.j - 2 * orientation.r*orientation.k);
+	transformMatrix.r[0] = DirectX::XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i*orientation.k + 2 * orientation.r*orientation.j);
+	transformMatrix.r[0] = DirectX::XMVectorSetW(transformMatrix.r[0], 0.0f);
 
-	transformMatrix.r[1] = XMVectorSetX(transformMatrix.r[1], 2 * orientation.i*orientation.j + 2 * orientation.r*orientation.k);
-	transformMatrix.r[1] = XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i*orientation.i - 2 * orientation.k*orientation.k);
-	transformMatrix.r[1] = XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j*orientation.k - 2 * orientation.r*orientation.i);
-	transformMatrix.r[1] = XMVectorSetW(transformMatrix.r[1], 0.0f);
+	transformMatrix.r[1] = DirectX::XMVectorSetX(transformMatrix.r[1], 2 * orientation.i*orientation.j + 2 * orientation.r*orientation.k);
+	transformMatrix.r[1] = DirectX::XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i*orientation.i - 2 * orientation.k*orientation.k);
+	transformMatrix.r[1] = DirectX::XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j*orientation.k - 2 * orientation.r*orientation.i);
+	transformMatrix.r[1] = DirectX::XMVectorSetW(transformMatrix.r[1], 0.0f);
 
-	transformMatrix.r[2] = XMVectorSetX(transformMatrix.r[2], 2 * orientation.i*orientation.k - 2 * orientation.r*orientation.j);
-	transformMatrix.r[2] = XMVectorSetY(transformMatrix.r[2], 2 * orientation.j*orientation.k + 2 * orientation.r*orientation.i);
-	transformMatrix.r[2] = XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i*orientation.i - 2 * orientation.j*orientation.j);
-	transformMatrix.r[2] = XMVectorSetW(transformMatrix.r[2], 0.0f);
+	transformMatrix.r[2] = DirectX::XMVectorSetX(transformMatrix.r[2], 2 * orientation.i*orientation.k - 2 * orientation.r*orientation.j);
+	transformMatrix.r[2] = DirectX::XMVectorSetY(transformMatrix.r[2], 2 * orientation.j*orientation.k + 2 * orientation.r*orientation.i);
+	transformMatrix.r[2] = DirectX::XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i*orientation.i - 2 * orientation.j*orientation.j);
+	transformMatrix.r[2] = DirectX::XMVectorSetW(transformMatrix.r[2], 0.0f);
 
-	transformMatrix.r[3] = XMVectorSetX(transformMatrix.r[3], position.x);
-	transformMatrix.r[3] = XMVectorSetY(transformMatrix.r[3], position.y);
-	transformMatrix.r[3] = XMVectorSetZ(transformMatrix.r[3], position.z);
-	transformMatrix.r[3] = XMVectorSetW(transformMatrix.r[3], 1.0f);
+	transformMatrix.r[3] = DirectX::XMVectorSetX(transformMatrix.r[3], position.x);
+	transformMatrix.r[3] = DirectX::XMVectorSetY(transformMatrix.r[3], position.y);
+	transformMatrix.r[3] = DirectX::XMVectorSetZ(transformMatrix.r[3], position.z);
+	transformMatrix.r[3] = DirectX::XMVectorSetW(transformMatrix.r[3], 1.0f);
 
-	transformMatrix = XMMatrixTranspose(transformMatrix);
+	transformMatrix = DirectX::XMMatrixTranspose(transformMatrix);
 }
 
-static inline void CalculateTransformMatrix(XMMATRIX& transformMatrix,
-	const Vector3& position,
+static inline void CalculateTransformMatrix(DirectX::XMMATRIX& transformMatrix,
+	const DirectX::SimpleMath::Vector3& position,
 	const Quaternion& orientation)
 {
-	transformMatrix.r[0] = XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j * orientation.j - 2 * orientation.k * orientation.k);
-	transformMatrix.r[0] = XMVectorSetY(transformMatrix.r[0], 2 * orientation.i * orientation.j - 2 * orientation.r * orientation.k);
-	transformMatrix.r[0] = XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i * orientation.k + 2 * orientation.r * orientation.j);
-	transformMatrix.r[0] = XMVectorSetW(transformMatrix.r[0], 0.0f);
+	transformMatrix.r[0] = DirectX::XMVectorSetX(transformMatrix.r[0], 1 - 2 * orientation.j * orientation.j - 2 * orientation.k * orientation.k);
+	transformMatrix.r[0] = DirectX::XMVectorSetY(transformMatrix.r[0], 2 * orientation.i * orientation.j - 2 * orientation.r * orientation.k);
+	transformMatrix.r[0] = DirectX::XMVectorSetZ(transformMatrix.r[0], 2 * orientation.i * orientation.k + 2 * orientation.r * orientation.j);
+	transformMatrix.r[0] = DirectX::XMVectorSetW(transformMatrix.r[0], 0.0f);
 
-	transformMatrix.r[1] = XMVectorSetX(transformMatrix.r[1], 2 * orientation.i * orientation.j + 2 * orientation.r * orientation.k);
-	transformMatrix.r[1] = XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i * orientation.i - 2 * orientation.k * orientation.k);
-	transformMatrix.r[1] = XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j * orientation.k - 2 * orientation.r * orientation.i);
-	transformMatrix.r[1] = XMVectorSetW(transformMatrix.r[1], 0.0f);
+	transformMatrix.r[1] = DirectX::XMVectorSetX(transformMatrix.r[1], 2 * orientation.i * orientation.j + 2 * orientation.r * orientation.k);
+	transformMatrix.r[1] = DirectX::XMVectorSetY(transformMatrix.r[1], 1 - 2 * orientation.i * orientation.i - 2 * orientation.k * orientation.k);
+	transformMatrix.r[1] = DirectX::XMVectorSetZ(transformMatrix.r[1], 2 * orientation.j * orientation.k - 2 * orientation.r * orientation.i);
+	transformMatrix.r[1] = DirectX::XMVectorSetW(transformMatrix.r[1], 0.0f);
 
-	transformMatrix.r[2] = XMVectorSetX(transformMatrix.r[2], 2 * orientation.i * orientation.k - 2 * orientation.r * orientation.j);
-	transformMatrix.r[2] = XMVectorSetY(transformMatrix.r[2], 2 * orientation.j * orientation.k + 2 * orientation.r * orientation.i);
-	transformMatrix.r[2] = XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i * orientation.i - 2 * orientation.j * orientation.j);
-	transformMatrix.r[2] = XMVectorSetW(transformMatrix.r[2], 0.0f);
+	transformMatrix.r[2] = DirectX::XMVectorSetX(transformMatrix.r[2], 2 * orientation.i * orientation.k - 2 * orientation.r * orientation.j);
+	transformMatrix.r[2] = DirectX::XMVectorSetY(transformMatrix.r[2], 2 * orientation.j * orientation.k + 2 * orientation.r * orientation.i);
+	transformMatrix.r[2] = DirectX::XMVectorSetZ(transformMatrix.r[2], 1 - 2 * orientation.i * orientation.i - 2 * orientation.j * orientation.j);
+	transformMatrix.r[2] = DirectX::XMVectorSetW(transformMatrix.r[2], 0.0f);
 
-	transformMatrix.r[3] = XMVectorSetX(transformMatrix.r[3], position.x);
-	transformMatrix.r[3] = XMVectorSetY(transformMatrix.r[3], position.y);
-	transformMatrix.r[3] = XMVectorSetZ(transformMatrix.r[3], position.z);
-	transformMatrix.r[3] = XMVectorSetW(transformMatrix.r[3], 1.0f);
+	transformMatrix.r[3] = DirectX::XMVectorSetX(transformMatrix.r[3], position.x);
+	transformMatrix.r[3] = DirectX::XMVectorSetY(transformMatrix.r[3], position.y);
+	transformMatrix.r[3] = DirectX::XMVectorSetZ(transformMatrix.r[3], position.z);
+	transformMatrix.r[3] = DirectX::XMVectorSetW(transformMatrix.r[3], 1.0f);
 
-	transformMatrix = XMMatrixTranspose(transformMatrix);
+	transformMatrix = DirectX::XMMatrixTranspose(transformMatrix);
 }

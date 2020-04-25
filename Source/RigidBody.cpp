@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "Transform.h"
+#include "spdlog.h"
 
 using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
@@ -53,7 +54,10 @@ void RigidBody::Integrate(float deltaTime)
 void RigidBody::CalculateTransformation()
 {
 	_orientation.normalise();
-	CalculateTransformMatrixColumnMajor((XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
+
+	spdlog::get("LOGGER")->info("Rotation: {} {} {} {}", _orientation.i, _orientation.j, _orientation.k, _orientation.r);
+
+	CalculateTransformMatrixColumnMajor((DirectX::XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
 }
 
 void RigidBody::ResetForces()

@@ -101,6 +101,7 @@ Application::Application()
 	_cameraSpeed = 2.0f;
 
 	_particleSystem = nullptr;
+	_forceRegistry = new ForceRegistry;
 
 	// Set-up spdlog
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -647,6 +648,9 @@ void Application::InitImGUI()
 
 void Application::Cleanup()
 {
+	delete _forceRegistry;
+	_forceRegistry = nullptr;
+
 	delete _debugDraw;
 	_debugDraw = nullptr;
 
@@ -723,21 +727,24 @@ void Application::PrepareObjects()
 #pragma endregion FloorInit
 
 #pragma region CubesInit
+	float cubeMass = 10.0f;
+
 	Matrix cubeTensor = Matrix::Identity;
-	cubeTensor._11 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
-	cubeTensor._22 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
-	cubeTensor._33 = (10.0f * ((0.5f * 0.5f) + (0.5f * 0.5f))) / 12.0f;
 
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 0.5f, 10.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 3.5f, 7.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
 													shinyMaterial);
 
-		cubeObject->GetRigidBody()->SetMass(10.0f);
+		cubeTensor._11 = (cubeMass * ((cubeObject->GetTransform()->GetScale().y * cubeObject->GetTransform()->GetScale().y) + (cubeObject->GetTransform()->GetScale().z * cubeObject->GetTransform()->GetScale().z))) * 0.083f;
+		cubeTensor._22 = (cubeMass * ((cubeObject->GetTransform()->GetScale().x * cubeObject->GetTransform()->GetScale().x) + (cubeObject->GetTransform()->GetScale().z * cubeObject->GetTransform()->GetScale().z))) * 0.083f;
+		cubeTensor._33 = (cubeMass * ((cubeObject->GetTransform()->GetScale().x * cubeObject->GetTransform()->GetScale().x) + (cubeObject->GetTransform()->GetScale().y * cubeObject->GetTransform()->GetScale().y))) * 0.083f;
+
+		cubeObject->GetRigidBody()->SetMass(cubeMass);
 		cubeObject->GetRigidBody()->SetInertiaTensor(cubeTensor);
 		cubeObject->SetBoudningSphereRadius(0.5f);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
@@ -745,6 +752,11 @@ void Application::PrepareObjects()
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
+
+	 _gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
+	//auto rbObj = static_cast<rbGameObject*>(_gameObjects[1]);
+	//_forceRegistry->Add(rbObj->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -0.4f, 0.0f)));
+	//_forceRegistry->Add(rbObj->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -756,7 +768,7 @@ void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
 	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
-	rbObject->GetRigidBody()->AddForce(force, Vector3(0.0f, 0.0f, 0.0f));
+	rbObject->GetRigidBody()->AddForce(force, Vector3());
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -766,23 +778,30 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(3.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(0.0f, -30.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(-3.0f, 0.0f, 0.0f));
+		moveObject(1, Vector3(0.0f, 30.0f, 0.0f));
 	}
 
 	UpdateCamera();
-
+	
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
+
+		for (auto gameObject2 : _gameObjects)
+		{
+			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);
+		}
+
 		gameObject->Update(deltaTime);
 	}
 
-	_particleSystem->Update(deltaTime);
+	//_particleSystem->Update(deltaTime);
+	_forceRegistry->Update(deltaTime);
 }
 
 void Application::UpdateCamera()
@@ -879,13 +898,14 @@ void Application::Draw()
 		gameObject->Render(_pImmediateContext.Get());
 	}
 
-	// Draw Debug Bounding Spheres
-	//for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
-	//{
-	//	_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale());
-	//}
+	//_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
 
-	_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
+	// Draw Debug Bounding Spheres
+	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
+	{
+		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale(), DirectX::Colors::Red);
+	}
+
 
 	// ImGUI Window
 	ImGui::Begin("Debug Console");

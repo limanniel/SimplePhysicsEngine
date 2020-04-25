@@ -33,6 +33,18 @@
     <Filter Include="Source\Particle System">
       <UniqueIdentifier>{fc91e987-bdd7-4f4f-98a5-26d1b10f8a9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Utils">
+      <UniqueIdentifier>{9326f99a-f4d5-4d09-a5ee-de5375efd7ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{5a60ff14-f85e-4130-8dc8-9c096a3fb80c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\ForceGenerators">
+      <UniqueIdentifier>{1478cfed-1476-47d7-bf69-0cac2321612c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ForceGenerators">
+      <UniqueIdentifier>{772cd316-9e1e-488d-b0cd-ecd7ccd7f105}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="Source\resource.h">
@@ -65,15 +77,6 @@
     <ClInclude Include="Source\Application.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Quaternion.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Commons.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DebugDraw.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ImGUI\imstb_truetype.h">
       <Filter>ImGUI</Filter>
     </ClInclude>
@@ -103,6 +106,30 @@
     </ClInclude>
     <ClInclude Include="Source\Particle.h">
       <Filter>Headers\Particle System</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Quaternion.h">
+      <Filter>Headers\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DebugDraw.h">
+      <Filter>Headers\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Commons.h">
+      <Filter>Headers\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DragGenerator.h">
+      <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ForceGenerator.h">
+      <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ForceRegistry.h">
+      <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GravityGenerator.h">
+      <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CollisionResponse.h">
+      <Filter>Headers\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -134,9 +161,6 @@
     <ClCompile Include="Source\Application.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DebugDraw.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ImGUI\imgui.cpp">
       <Filter>ImGUI</Filter>
     </ClCompile>
@@ -157,6 +181,21 @@
     </ClCompile>
     <ClCompile Include="Source\Particle.cpp">
       <Filter>Source\Particle System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DebugDraw.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DragGenerator.cpp">
+      <Filter>Source\ForceGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ForceRegistry.cpp">
+      <Filter>Source\ForceGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GravityGenerator.cpp">
+      <Filter>Source\ForceGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CollisionResponse.cpp">
+      <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
