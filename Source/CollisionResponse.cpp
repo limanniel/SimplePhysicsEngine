@@ -6,6 +6,15 @@
 using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
 
+Vector3 CollisionResponse::s_hardConstraints[6] = {
+    Vector3(0.0f, 1.0f, 0.0f),
+    Vector3(0.0f, -1.0f, 0.0f),
+    Vector3(1.0f, 0.0f, 0.0f),
+    Vector3(-1.0f, 0.0f, 0.0f),
+    Vector3(0.0f, 0.0f, 1.0f),
+    Vector3(0.0f, 0.0f, -1.0f)
+};
+
 void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 {
     Vector3 relativeVelocity = manifold.body[1]->GetVelocity() - manifold.body[0]->GetVelocity();
@@ -62,7 +71,7 @@ CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject&
     Vector3 distance = obj2.GetTransform()->GetPosition() - obj1.GetTransform()->GetPosition();
 
     // Early-out, if sphere are not colliding
-    if (distance.LengthSquared() - (radius * radius) >= 0.0f)
+    if (distance.LengthSquared() - (radius * radius) > 0.0f)
         return result;
 
     distance.Normalize();
@@ -81,19 +90,56 @@ CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject&
     return result;
 }
 
+CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject& obj,
+                                                             const HARD_CONSTRAINTS& constraint)
+{
+    CollisionManifold result;
+
+    Vector3 position = obj.GetTransform()->GetPosition();
+
+    Vector3 normal = s_hardConstraints[static_cast<int>(constraint)];
+    normal.Normalize();
+
+    float distance = normal.Dot(position) - obj.GetBoundingSphereRadius();
+
+    if (distance >= 0) 
+        return result;
+
+    // Fill-out manifold
+    result.body[0] = obj.GetRigidBody();
+    result.body[1] = nullptr;
+
+    result.normal = normal;
+    result.penetration = -distance;
+
+    Vector3 contactPoint = position - normal * (distance + obj.GetBoundingSphereRadius());
+
+    result.contacts.push_back(contactPoint);
+    return result;
+}
+
 void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
 {
     // Early-out, comparing the same object
     if (obj1 == obj2) return;
 
+
+    CollisionManifold manifold;
+
+    // Hard constraint - FLOOR
+    if (obj1->GetTransform()->GetPosition().y < 0.5f)
+    {
+        manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::FLOOR);
+    }
+
     // Check if both objects contain, spherical bounding volume
     if (obj1->GetBoundingSphereRadius() > 0.0f &&
         obj2->GetBoundingSphereRadius() > 0.0f)
     {
-        CollisionManifold manifold = CreateCollisionManifold(*obj1, *obj2);
-
-        // Resolve collision, if there's contact point
-        if (!manifold.contacts.empty())
-            ResolveCollision(manifold);
+        manifold = CreateCollisionManifold(*obj1, *obj2);
     }
+
+	// Resolve collision, if there's contact point
+	if (!manifold.contacts.empty())
+		ResolveCollision(manifold);
 }

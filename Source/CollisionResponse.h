@@ -19,12 +19,28 @@ struct CollisionManifold
 	std::vector<DirectX::SimpleMath::Vector3> contacts;
 };
 
+enum class HARD_CONSTRAINTS
+{
+	FLOOR = 0,
+	CEILING,
+	LEFT_WALL,
+	RIGT_WALL,
+	FRONT_WALL,
+	BACK_WALL
+};
+
 class CollisionResponse
 {
+private:
+	static DirectX::SimpleMath::Vector3 s_hardConstraints[6];
+
 private:
 	void ResolveCollision(const CollisionManifold& manifold);
 	CollisionManifold CreateCollisionManifold(const rbGameObject& obj1,
 											  const rbGameObject& obj2);
+
+	CollisionManifold CreateCollisionManifold(const rbGameObject& obj,
+											  const HARD_CONSTRAINTS& constraint);
 
 public:
 	void Update(rbGameObject* obj1, rbGameObject* obj2);
