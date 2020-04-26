@@ -36,6 +36,7 @@ private:
 
 private:
 	void ResolveCollision(const CollisionManifold& manifold);
+	void ResolveInterpenetration(const CollisionManifold& manifold);
 	CollisionManifold CreateCollisionManifold(const rbGameObject& obj1,
 											  const rbGameObject& obj2);
 

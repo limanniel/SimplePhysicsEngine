@@ -87,6 +87,30 @@ void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
     }
 }
 
+void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifold)
+{
+    float depth = fmaxf(manifold.penetration, 0.0f);
+
+    float totalMass = manifold.body[0]->GetInverseMass();
+    if (manifold.body[1])
+        totalMass += manifold.body[1]->GetInverseMass();
+
+    float scalar = depth * totalMass;
+
+    Vector3 correction = manifold.normal * scalar;
+    if (manifold.body[1] == nullptr)
+        correction = -correction;
+
+    Vector3 newPos = manifold.body[0]->GetTransformRef().GetPosition() - correction * manifold.body[0]->GetInverseMass();
+    manifold.body[0]->GetTransformRef().SetPosition(newPos);
+
+    if (manifold.body[1])
+    {
+		newPos = manifold.body[1]->GetTransformRef().GetPosition() + correction * manifold.body[0]->GetInverseMass();
+		manifold.body[1]->GetTransformRef().SetPosition(newPos);
+    }
+}
+
 CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject& obj1,
                                                              const rbGameObject& obj2)
 {
@@ -152,7 +176,7 @@ void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
     CollisionManifold manifold;
 
     // Hard constraint - FLOOR
-    if (obj1->GetTransform()->GetPosition().y < 0.5f)
+    if (obj1->GetTransform()->GetPosition().y < 1.0f)
     {
         manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::FLOOR);
     }
@@ -165,6 +189,9 @@ void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
     }
 
 	// Resolve collision, if there's contact point
-	if (!manifold.contacts.empty())
+    if (!manifold.contacts.empty())
+    {
 		ResolveCollision(manifold);
+        ResolveInterpenetration(manifold);
+    }
 }
