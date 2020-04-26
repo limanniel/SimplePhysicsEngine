@@ -9,7 +9,7 @@ RigidBody::RigidBody(Transform& transform,
 					 const Vector3& initialVelocity,
 					 const Vector3& initialAcceleration)
 	: ParticleModel(transform, initialVelocity, initialAcceleration),
-	  _angularDamping(0.99f),
+	  _angularDamping(0.95f),
 	  _angularVelocity(Vector3::Zero),
 	  _angularAcceleration(Vector3::Zero),
 	  _torqueAccumulator(Vector3::Zero),

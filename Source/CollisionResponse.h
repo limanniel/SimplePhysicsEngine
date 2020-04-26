@@ -49,11 +49,18 @@ private:
 	float CalculateInverseMassSum(const CollisionManifold& manifold);
 	DirectX::SimpleMath::Vector3 CalculateImpulse(const CollisionManifold& manifold);
 	DirectX::SimpleMath::Vector3 CalculateRelativeVelocity(const CollisionManifold& manifold);
+	DirectX::SimpleMath::Vector3 CalculateTangentVector();
+	float CalculateFrictionMagnitude(const DirectX::SimpleMath::Vector3& tangentVec,
+									 const CollisionManifold& manifold);
 
 	void ApplyLinearImpulse(const DirectX::SimpleMath::Vector3& impulse,
 							const CollisionManifold& manifold);
 	void ApplyAngularImpulse(const DirectX::SimpleMath::Vector3& impulse,
 							const CollisionManifold& manifold);
+	void ApplyLinearFrictionImpulse(const DirectX::SimpleMath::Vector3& impulse,
+									const CollisionManifold& manifold);
+	void ApplyAngularFrictionImpulse(const DirectX::SimpleMath::Vector3& impulse,
+									const CollisionManifold& manifold);
 
 	CollisionManifold CreateCollisionManifold(const rbGameObject& obj1,
 											  const rbGameObject& obj2);
