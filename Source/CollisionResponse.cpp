@@ -17,7 +17,15 @@ Vector3 CollisionResponse::s_hardConstraints[6] = {
 
 void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 {
-    Vector3 relativeVelocity = manifold.body[1]->GetVelocity() - manifold.body[0]->GetVelocity();
+    Vector3 relativeVelocity;
+    if (manifold.body[1])
+    {
+        relativeVelocity = manifold.body[1]->GetVelocity() - manifold.body[0]->GetVelocity();
+    }
+    else
+    {
+        relativeVelocity = manifold.body[0]->GetVelocity();
+    }
 
     Vector3 relativeNormal = manifold.normal;
 
@@ -26,40 +34,57 @@ void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 
 	float restituion = 0.9f;
     float numerator = (-(1.0f + restituion)) * relativeVelocity.Dot(relativeNormal);
-    float denominator = manifold.body[0]->GetInverseMass() + manifold.body[1]->GetInverseMass();
 
+    float denominator = manifold.body[0]->GetInverseMass();
+    if (manifold.body[1])
+        denominator += manifold.body[1]->GetInverseMass();
+
+    Vector3 product;
     Vector3 pt1 = manifold.contacts[0] - manifold.body[0]->GetTransformRef().GetPosition();
-    Vector3 pt2 = manifold.contacts[0] - manifold.body[1]->GetTransformRef().GetPosition();
 
     Vector3 r1 = pt1.Cross(relativeNormal);
     r1 = Vector3::Transform(r1, manifold.body[0]->GetInverseInertiaTensor());
     r1 = r1.Cross(pt1);
+    product = r1;
 
-	Vector3 r2 = pt2.Cross(relativeNormal);
-	r2 = Vector3::Transform(r2, manifold.body[1]->GetInverseInertiaTensor());
-	r2 = r2.Cross(pt2);
+    Vector3 pt2;
+    if (manifold.body[1])
+    {
+		pt2 = manifold.contacts[0] - manifold.body[1]->GetTransformRef().GetPosition();
 
-    denominator += relativeNormal.Dot(r1 + r2);
+		Vector3 r2 = pt2.Cross(relativeNormal);
+		r2 = Vector3::Transform(r2, manifold.body[1]->GetInverseInertiaTensor());
+		r2 = r2.Cross(pt2);
+
+        product += r2;
+    }
+
+    denominator += relativeNormal.Dot(product);
 
     float j = numerator / denominator;
 
     Vector3 impulse = relativeNormal * j;
+    if (manifold.body[1] == nullptr)
+        impulse = -impulse;
 
-    Vector3 newVelocity = manifold.body[0]->GetVelocity();
-    newVelocity -= impulse * manifold.body[0]->GetInverseMass();
-   manifold.body[0]->SetVelocty(newVelocity);
+	Vector3 newVelocity = manifold.body[0]->GetVelocity();
+	newVelocity -= impulse * manifold.body[0]->GetInverseMass();
+	manifold.body[0]->SetVelocty(newVelocity);
 
-    newVelocity = manifold.body[1]->GetVelocity();
-    newVelocity += impulse * manifold.body[1]->GetInverseMass();
-    manifold.body[1]->SetVelocty(newVelocity);
+	Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
+	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor() * 100000.0f);
+	manifold.body[0]->SetAngularVelocity(newAngVelocity);
 
-    Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
-    newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor() * 100000.0f);
-    manifold.body[0]->SetAngularVelocity(newAngVelocity);
+    if (manifold.body[1])
+    {
+		newVelocity = manifold.body[1]->GetVelocity();
+		newVelocity += impulse * manifold.body[1]->GetInverseMass();
+		manifold.body[1]->SetVelocty(newVelocity);
 
-	newAngVelocity = manifold.body[1]->GetAngularVelocity();
-	newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
-	manifold.body[1]->SetAngularVelocity(newAngVelocity);
+		newAngVelocity = manifold.body[1]->GetAngularVelocity();
+		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
+		manifold.body[1]->SetAngularVelocity(newAngVelocity);
+    }
 }
 
 CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject& obj1,
