@@ -22,6 +22,8 @@ BuoyancyGenerator::~BuoyancyGenerator() = default;
 
 void BuoyancyGenerator::UpdateForce(RigidBody* rigidBody, float deltaTime)
 {
+	UNREFERENCED_PARAMETER(deltaTime);
+
 	float currentDepth = rigidBody->GetTransformRef().GetPosition().y;
 
 	// Early-out, if object is higher than water level
