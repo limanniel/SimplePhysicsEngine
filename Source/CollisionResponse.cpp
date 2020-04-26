@@ -6,10 +6,30 @@
 using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
 
+Vector3 CollisionResponse::s_hardConstraints[6] = {
+    Vector3(0.0f, 1.0f, 0.0f),
+    Vector3(0.0f, -1.0f, 0.0f),
+    Vector3(1.0f, 0.0f, 0.0f),
+    Vector3(-1.0f, 0.0f, 0.0f),
+    Vector3(0.0f, 0.0f, 1.0f),
+    Vector3(0.0f, 0.0f, -1.0f)
+};
+
 void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 {
-    Vector3 relativeVelocity = manifold.body[1]->GetVelocity() - manifold.body[0]->GetVelocity();
+    Vector3 relativeVelocity;
+    if (manifold.body[1])
+    {
+        // Calculate relative velocity from Object A's perspective A -> B
+        relativeVelocity = manifold.body[1]->GetVelocity() - manifold.body[0]->GetVelocity();
+    }
+    else
+    {
+        // Set relative velocity, to one of the only object contained
+        relativeVelocity = manifold.body[0]->GetVelocity();
+    }
 
+    // Set relative normal of point of contact
     Vector3 relativeNormal = manifold.normal;
 
     // Early-out if objects are moving apart
@@ -17,40 +37,90 @@ void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 
 	float restituion = 0.9f;
     float numerator = (-(1.0f + restituion)) * relativeVelocity.Dot(relativeNormal);
-    float denominator = manifold.body[0]->GetInverseMass() + manifold.body[1]->GetInverseMass();
 
+    float denominator = manifold.body[0]->GetInverseMass();
+    if (manifold.body[1])
+        denominator += manifold.body[1]->GetInverseMass();
+
+    Vector3 product;
     Vector3 pt1 = manifold.contacts[0] - manifold.body[0]->GetTransformRef().GetPosition();
-    Vector3 pt2 = manifold.contacts[0] - manifold.body[1]->GetTransformRef().GetPosition();
 
     Vector3 r1 = pt1.Cross(relativeNormal);
     r1 = Vector3::Transform(r1, manifold.body[0]->GetInverseInertiaTensor());
     r1 = r1.Cross(pt1);
+    product = r1;
 
-	Vector3 r2 = pt2.Cross(relativeNormal);
-	r2 = Vector3::Transform(r2, manifold.body[1]->GetInverseInertiaTensor());
-	r2 = r2.Cross(pt2);
+    Vector3 pt2;
+    if (manifold.body[1])
+    {
+		pt2 = manifold.contacts[0] - manifold.body[1]->GetTransformRef().GetPosition();
 
-    denominator += relativeNormal.Dot(r1 + r2);
+		Vector3 r2 = pt2.Cross(relativeNormal);
+		r2 = Vector3::Transform(r2, manifold.body[1]->GetInverseInertiaTensor());
+		r2 = r2.Cross(pt2);
 
-    float j = numerator / denominator;
+        product += r2;
+    }
 
-    Vector3 impulse = relativeNormal * j;
+    denominator += relativeNormal.Dot(product);
 
-    Vector3 newVelocity = manifold.body[0]->GetVelocity();
-    newVelocity -= impulse * manifold.body[0]->GetInverseMass();
-   manifold.body[0]->SetVelocty(newVelocity);
+    float impulseMag = numerator / denominator;
 
-    newVelocity = manifold.body[1]->GetVelocity();
-    newVelocity += impulse * manifold.body[1]->GetInverseMass();
-    manifold.body[1]->SetVelocty(newVelocity);
+    Vector3 impulse = relativeNormal * impulseMag;
 
-    Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
-    newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor() * 100000.0f);
-    manifold.body[0]->SetAngularVelocity(newAngVelocity);
+    // Flip sign, if creating impulse for hard constraint (no second object)
+    if (manifold.body[1] == nullptr)
+        impulse = -impulse;
 
-	newAngVelocity = manifold.body[1]->GetAngularVelocity();
-	newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
-	manifold.body[1]->SetAngularVelocity(newAngVelocity);
+    // Apply Linear impulse to first object
+	Vector3 newVelocity = manifold.body[0]->GetVelocity();
+	newVelocity -= impulse * manifold.body[0]->GetInverseMass();
+	manifold.body[0]->SetVelocty(newVelocity);
+
+    // Apply Angular impulse to first object
+	Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
+	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor() * 100000.0f);
+	manifold.body[0]->SetAngularVelocity(newAngVelocity);
+
+    if (manifold.body[1])
+    {
+        // Apply Linear impulse to second object
+		newVelocity = manifold.body[1]->GetVelocity();
+		newVelocity += impulse * manifold.body[1]->GetInverseMass();
+		manifold.body[1]->SetVelocty(newVelocity);
+
+        // Apply Angular impulse to second object
+		newAngVelocity = manifold.body[1]->GetAngularVelocity();
+		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
+		manifold.body[1]->SetAngularVelocity(newAngVelocity);
+    }
+}
+
+void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifold)
+{
+    float penetration = fmaxf(manifold.penetration, 0.0f);
+
+    float invMassSum = manifold.body[0]->GetInverseMass();
+    if (manifold.body[1])
+        invMassSum += manifold.body[1]->GetInverseMass();
+
+    // Percentage of penetration that needs to be applied, to each object (distributed)
+    float scalar = penetration * invMassSum;
+
+    Vector3 scaledPenetration = manifold.normal * scalar;
+
+    // Flip sign, if creating correction for hard constraint (no second object)
+    if (manifold.body[1] == nullptr)
+        scaledPenetration = -scaledPenetration;
+
+    Vector3 newPos = manifold.body[0]->GetTransformRef().GetPosition() - scaledPenetration * manifold.body[0]->GetInverseMass();
+    manifold.body[0]->GetTransformRef().SetPosition(newPos);
+
+    if (manifold.body[1])
+    {
+		newPos = manifold.body[1]->GetTransformRef().GetPosition() + scaledPenetration * manifold.body[0]->GetInverseMass();
+		manifold.body[1]->GetTransformRef().SetPosition(newPos);
+    }
 }
 
 CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject& obj1,
@@ -62,7 +132,7 @@ CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject&
     Vector3 distance = obj2.GetTransform()->GetPosition() - obj1.GetTransform()->GetPosition();
 
     // Early-out, if sphere are not colliding
-    if (distance.LengthSquared() - (radius * radius) >= 0.0f)
+    if (distance.LengthSquared() - (radius * radius) > 0.0f)
         return result;
 
     distance.Normalize();
@@ -81,19 +151,92 @@ CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject&
     return result;
 }
 
+CollisionManifold CollisionResponse::CreateCollisionManifold(const rbGameObject& obj,
+                                                             const HARD_CONSTRAINTS& constraint)
+{
+    CollisionManifold result;
+
+    Vector3 position = obj.GetTransform()->GetPosition();
+
+    Vector3 normal = s_hardConstraints[static_cast<int>(constraint)];
+    normal.Normalize();
+
+    float distance = normal.Dot(position) - obj.GetBoundingSphereRadius();
+
+    if (distance >= 0) 
+        return result;
+
+    // Fill-out manifold
+    result.body[0] = obj.GetRigidBody();
+    result.body[1] = nullptr;
+
+    result.normal = normal;
+    result.penetration = -distance;
+
+    Vector3 contactPoint = position - normal * (distance + obj.GetBoundingSphereRadius());
+
+    result.contacts.push_back(contactPoint);
+    return result;
+}
+
 void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
 {
     // Early-out, comparing the same object
     if (obj1 == obj2) return;
 
+    CollisionManifold manifold;
+
+#pragma region HARD_CONSTRAINTS
+
+    // Hard constraint - FLOOR
+    if (obj1->GetTransform()->GetPosition().y < 1.0f)
+    {
+        manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::FLOOR);
+    }
+
+	// Hard constraint - CEILING
+	if (obj1->GetTransform()->GetPosition().y > 9.0f)
+	{
+		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::CEILING);
+	}
+
+    // Hard constraint - RIGHT WALL
+    if (obj1->GetTransform()->GetPosition().x > 9.0f)
+    {
+        manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::RIGT_WALL);
+    }
+
+    // Hard constraint - LEFT WALL
+	if (obj1->GetTransform()->GetPosition().x < -9.0f)
+	{
+		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::LEFT_WALL);
+	}
+
+	// Hard constraint - BACK WALL
+	if (obj1->GetTransform()->GetPosition().z > 12.0f)
+	{
+		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::BACK_WALL);
+	}
+
+	// Hard constraint - FRONT WALL
+	if (obj1->GetTransform()->GetPosition().z < -2.0f)
+	{
+		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::FRONT_WALL);
+	}
+
+#pragma endregion HARD_CONSTRAINTS
+
     // Check if both objects contain, spherical bounding volume
     if (obj1->GetBoundingSphereRadius() > 0.0f &&
         obj2->GetBoundingSphereRadius() > 0.0f)
     {
-        CollisionManifold manifold = CreateCollisionManifold(*obj1, *obj2);
+        manifold = CreateCollisionManifold(*obj1, *obj2);
+    }
 
-        // Resolve collision, if there's contact point
-        if (!manifold.contacts.empty())
-            ResolveCollision(manifold);
+	// Resolve collision, if there's contact point
+    if (!manifold.contacts.empty())
+    {
+		ResolveCollision(manifold);
+        ResolveInterpenetration(manifold);
     }
 }
