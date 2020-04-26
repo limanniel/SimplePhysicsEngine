@@ -371,6 +371,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Appearance.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\BuoyancyGenerator.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Source\CollisionResponse.cpp" />
@@ -401,6 +402,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Appearance.h" />
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\BuoyancyGenerator.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\CollisionResponse.h" />
     <ClInclude Include="Source\Commons.h" />

@@ -131,6 +131,9 @@
     <ClInclude Include="Source\CollisionResponse.h">
       <Filter>Headers\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Source\BuoyancyGenerator.h">
+      <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -196,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="Source\CollisionResponse.cpp">
       <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BuoyancyGenerator.cpp">
+      <Filter>Source\ForceGenerators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

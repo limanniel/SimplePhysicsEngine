@@ -4,6 +4,7 @@
 
 #include "DragGenerator.h"
 #include "GravityGenerator.h"
+#include "BuoyancyGenerator.h"
 
 class ForceRegistry
 {

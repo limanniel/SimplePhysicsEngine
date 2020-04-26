@@ -172,13 +172,13 @@ Vector3 CollisionResponse::CalculateImpulse(const CollisionManifold& manifold)
 	float restituion = 0.9f;
 	float numerator = (-(1.0f + restituion)) * relativeVelocity.Dot(relativeNormal);
 
-	Vector3 product;
 	pt1 = manifold.contacts[0] - manifold.body[0]->GetTransformRef().GetPosition();
 
 	Vector3 r1 = pt1.Cross(relativeNormal);
 	r1 = Vector3::Transform(r1, manifold.body[0]->GetInverseInertiaTensor());
 	r1 = r1.Cross(pt1);
-	product = r1;
+
+	Vector3 product = r1;
 
 	if (manifold.body[1])
 	{

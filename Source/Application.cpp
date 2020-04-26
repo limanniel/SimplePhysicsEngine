@@ -734,7 +734,7 @@ void Application::PrepareObjects()
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 3.5f, 7.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 5.5f, 7.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
@@ -755,6 +755,9 @@ void Application::PrepareObjects()
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
+
+	auto buoyObject = static_cast<rbGameObject*>(_gameObjects[4]);
+	_forceRegistry->Add(buoyObject->GetRigidBody(), new BuoyancyGenerator(1.0f, 0.5f, 3.0f));
 
 	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
 
