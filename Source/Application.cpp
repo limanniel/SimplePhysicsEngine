@@ -756,8 +756,7 @@ void Application::PrepareObjects()
 	}
 #pragma endregion CubesInit
 
-	//_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
-	//auto rbObj = static_cast<rbGameObject*>(_gameObjects[1]);
+	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -779,12 +778,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(1, Vector3(0.0f, -30.0f, 0.0f));
+		moveObject(5, Vector3(0.0f, 0.0f, 30.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(1, Vector3(0.0f, 30.0f, 0.0f));
+		moveObject(5, Vector3(0.0f, 0.0f, -30.0f));
 	}
 
 	UpdateCamera();
