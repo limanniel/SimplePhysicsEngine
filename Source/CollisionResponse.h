@@ -37,12 +37,14 @@ private:
 	DirectX::SimpleMath::Vector3 pt1;
 	DirectX::SimpleMath::Vector3 pt2;
 	float invMassSum;
+	float impulseMag;
 
 	static DirectX::SimpleMath::Vector3 s_hardConstraints[6];
 
 private:
 	void ResolveCollision(const CollisionManifold& manifold);
 	void ResolveInterpenetration(const CollisionManifold& manifold);
+	void ResolveFriction(const CollisionManifold& manifold);
 
 	float CalculateInverseMassSum(const CollisionManifold& manifold);
 	DirectX::SimpleMath::Vector3 CalculateImpulse(const CollisionManifold& manifold);

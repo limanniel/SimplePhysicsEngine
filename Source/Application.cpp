@@ -757,9 +757,9 @@ void Application::PrepareObjects()
 #pragma endregion CubesInit
 
 	auto buoyObject = static_cast<rbGameObject*>(_gameObjects[4]);
-	_forceRegistry->Add(buoyObject->GetRigidBody(), new BuoyancyGenerator(1.0f, 0.5f, 3.0f));
+	_forceRegistry->Add(buoyObject->GetRigidBody(), new BuoyancyGenerator(1.0f, 0.1f, 3.0f));
 
-	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
+	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 7.0f, 6.8f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
