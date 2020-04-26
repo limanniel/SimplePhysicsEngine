@@ -32,11 +32,27 @@ enum class HARD_CONSTRAINTS
 class CollisionResponse
 {
 private:
+	DirectX::SimpleMath::Vector3 relativeVelocity;
+	DirectX::SimpleMath::Vector3 relativeNormal;
+	DirectX::SimpleMath::Vector3 pt1;
+	DirectX::SimpleMath::Vector3 pt2;
+	float invMassSum;
+
 	static DirectX::SimpleMath::Vector3 s_hardConstraints[6];
 
 private:
 	void ResolveCollision(const CollisionManifold& manifold);
 	void ResolveInterpenetration(const CollisionManifold& manifold);
+
+	float CalculateInverseMassSum(const CollisionManifold& manifold);
+	DirectX::SimpleMath::Vector3 CalculateImpulse(const CollisionManifold& manifold);
+	DirectX::SimpleMath::Vector3 CalculateRelativeVelocity(const CollisionManifold& manifold);
+
+	void ApplyLinearImpulse(const DirectX::SimpleMath::Vector3& impulse,
+							const CollisionManifold& manifold);
+	void ApplyAngularImpulse(const DirectX::SimpleMath::Vector3& impulse,
+							const CollisionManifold& manifold);
+
 	CollisionManifold CreateCollisionManifold(const rbGameObject& obj1,
 											  const rbGameObject& obj2);
 
@@ -44,5 +60,8 @@ private:
 											  const HARD_CONSTRAINTS& constraint);
 
 public:
+	CollisionResponse();
+	~CollisionResponse();
+
 	void Update(rbGameObject* obj1, rbGameObject* obj2);
 };
