@@ -40,8 +40,6 @@ void RigidBody::Integrate(float deltaTime)
 	_velocity += (_acceleration + newAcceleration) * (deltaTime * 0.5f);
 	_angularVelocity += (_angularAcceleration + newAngularAcceleration) * (deltaTime * 0.5f);
 
-	spdlog::get("LOGGER")->info("Ang Vel: {} {} {}", _angularVelocity.x, _angularVelocity.y, _angularVelocity.z);
-
 	// Apply dampening
 	_velocity *= powf(_linearDamping, deltaTime);
 	_angularVelocity *= powf(_angularDamping, deltaTime);

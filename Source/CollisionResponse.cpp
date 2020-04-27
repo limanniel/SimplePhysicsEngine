@@ -45,19 +45,19 @@ void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
 	}
 
 	// Hard constraint - CEILING
-	if (obj1->GetTransform()->GetPosition().y > 9.0f)
+	if (obj1->GetTransform()->GetPosition().y > 8.0f)
 	{
 		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::CEILING);
 	}
 
 	// Hard constraint - RIGHT WALL
-	if (obj1->GetTransform()->GetPosition().x > 9.0f)
+	if (obj1->GetTransform()->GetPosition().x > 8.0f)
 	{
 		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::RIGT_WALL);
 	}
 
 	// Hard constraint - LEFT WALL
-	if (obj1->GetTransform()->GetPosition().x < -9.0f)
+	if (obj1->GetTransform()->GetPosition().x < -8.0f)
 	{
 		manifold = CreateCollisionManifold(*obj1, HARD_CONSTRAINTS::LEFT_WALL);
 	}
@@ -128,8 +128,11 @@ void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifol
     Vector3 scaledPenetration = manifold.normal * scalar;
 
     // Flip sign, if creating correction for hard constraint (no second object)
-    if (manifold.body[1] == nullptr)
-        scaledPenetration = -scaledPenetration;
+	if (manifold.body[1] == nullptr)
+	{
+		scaledPenetration += manifold.normal * penetration;
+		scaledPenetration = -scaledPenetration;
+	}
 
     Vector3 newPos = manifold.body[0]->GetTransformRef().GetPosition() - scaledPenetration * manifold.body[0]->GetInverseMass();
     manifold.body[0]->GetTransformRef().SetPosition(newPos);
@@ -143,10 +146,6 @@ void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifol
 
 void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
 {
-	//// Prevent "Spinning over"
-	//if (impulseMag < 50.0f)
-	//	return;
-
 	Vector3 tangentVector = CalculateTangentVector();
 
 	// Early-out, if no tangent vector has been found

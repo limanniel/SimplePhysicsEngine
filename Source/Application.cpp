@@ -727,14 +727,14 @@ void Application::PrepareObjects()
 #pragma endregion FloorInit
 
 #pragma region CubesInit
-	float cubeMass = 10.0f;
+	float cubeMass = 50.0f;
 
 	Matrix cubeTensor = Matrix::Identity;
 
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 0.7f, 5.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 6.7f, 5.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
@@ -749,14 +749,14 @@ void Application::PrepareObjects()
 		cubeObject->SetBoudningSphereRadius(0.5f);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
-		//_forceRegistry->Add(cubeObject->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -4.4f, 0.0f)));
-		//_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
+		_forceRegistry->Add(cubeObject->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -4.4f, 0.0f)));
+		_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
 
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
 
-	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 1.0f, 5.0f));
+	//_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 1.0f, 5.0f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
