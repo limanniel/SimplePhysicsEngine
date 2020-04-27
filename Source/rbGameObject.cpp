@@ -25,5 +25,5 @@ void rbGameObject::Update(float deltaTime)
 {
     _rigidBody->Update(deltaTime);
 
-    _worldMatrix = _transform->GetScaleMatrix() * _rigidBody->GetTransformMatrix();
+    _worldMatrix = _transform->GetScaleMatrix() * _rigidBody->GetTransformMatrix() * _transform->GetPositionMatrix();
 }

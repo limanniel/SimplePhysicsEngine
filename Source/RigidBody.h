@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ParticleModel.h"
-#include "Quaternion.h"
 
 class RigidBody : public ParticleModel
 {
@@ -10,7 +9,8 @@ private:
 	DirectX::SimpleMath::Vector3    _angularVelocity;
 	DirectX::SimpleMath::Vector3    _angularAcceleration;
 	DirectX::SimpleMath::Vector3    _torqueAccumulator;
-	Quaternion						_orientation;
+	DirectX::SimpleMath::Quaternion	_orientation;
+	DirectX::SimpleMath::Quaternion	_oldOrientation;
 	DirectX::SimpleMath::Matrix     _inverseInertiaTensor;
 	DirectX::SimpleMath::Matrix     _transformMatrix;
 

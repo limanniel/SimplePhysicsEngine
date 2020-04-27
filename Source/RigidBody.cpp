@@ -2,8 +2,7 @@
 #include "Transform.h"
 #include "spdlog.h"
 
-using DirectX::SimpleMath::Vector3;
-using DirectX::SimpleMath::Matrix;
+using namespace DirectX::SimpleMath;
 
 RigidBody::RigidBody(Transform& transform,
 					 const Vector3& initialVelocity,
@@ -13,7 +12,8 @@ RigidBody::RigidBody(Transform& transform,
 	  _angularVelocity(Vector3::Zero),
 	  _angularAcceleration(Vector3::Zero),
 	  _torqueAccumulator(Vector3::Zero),
-	  _orientation(Quaternion()),
+	  _orientation(DirectX::SimpleMath::Quaternion::Identity),
+	  _oldOrientation(_orientation),
 	  _inverseInertiaTensor(Matrix::Identity),
 	  _transformMatrix(Matrix::Identity)
 {
@@ -25,26 +25,38 @@ RigidBody::~RigidBody()
 
 }
 
+// Verlet Velocity Integration
 void RigidBody::Integrate(float deltaTime)
 {
 	// Skip integration, if particle has infinite mass
 	if (_inverseMass <= 0.0f) return;
 
-	// Calculate Acceleration
-	_acceleration = _forceAccumulator * _inverseMass;
-	_angularAcceleration = XMVector3Transform(_torqueAccumulator, _inverseInertiaTensor);
 
-	// Calculate Velocity
-	_velocity += _acceleration * deltaTime;
-	_angularVelocity += _angularAcceleration * deltaTime;
+	// Calculate new accelerations (current)
+	Vector3 newAcceleration = _forceAccumulator * _inverseMass;
+	Vector3 newAngularAcceleration = XMVector3Transform(_torqueAccumulator, _inverseInertiaTensor);
 
-	// Apply damping
+	// Calculate and update new velocities, from previous and currect accelerations
+	_velocity += (_acceleration + newAcceleration) * (deltaTime * 0.5f);
+	_angularVelocity += (_angularAcceleration + newAngularAcceleration) * (deltaTime * 0.5f);
+
+	// Apply dampening
 	_velocity *= powf(_linearDamping, deltaTime);
 	_angularVelocity *= powf(_angularDamping, deltaTime);
 
-	// Update Position & Orientation
-	_transform.SetPosition(_transform.GetPosition() + (_velocity * deltaTime));
-	_orientation.addScaledVector(_angularVelocity, deltaTime);
+	// Update Position
+	Vector3 newPosition = _transform.GetPosition();
+	newPosition += _velocity * deltaTime;
+	newPosition += _acceleration * (deltaTime * deltaTime);
+
+	_transform.SetPosition(newPosition);
+
+	// Update Orientation
+	_orientation += Quaternion(_angularVelocity * deltaTime + _angularAcceleration * (deltaTime * deltaTime), 0.0f);
+
+	// Update old Acceleration to current
+	_acceleration = newAcceleration;
+
 
 	CalculateTransformation();
 
@@ -53,8 +65,8 @@ void RigidBody::Integrate(float deltaTime)
 
 void RigidBody::CalculateTransformation()
 {
-	_orientation.normalise();
-	CalculateTransformMatrixColumnMajor((DirectX::XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
+	_orientation.Normalize();
+	_transformMatrix = Matrix::Transform(_transformMatrix, _orientation);
 }
 
 void RigidBody::ResetForces()
