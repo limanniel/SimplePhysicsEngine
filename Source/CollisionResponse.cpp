@@ -3,6 +3,8 @@
 #include "RigidBody.h"
 #include "rbGameObject.h"
 
+#include "spdlog.h"
+
 using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
 
@@ -20,7 +22,8 @@ CollisionResponse::CollisionResponse()
 	  relativeNormal(Vector3::Zero),
 	  pt1(Vector3::Zero),
 	  pt2(Vector3::Zero),
-	  invMassSum(0.0f)
+	  invMassSum(0.0f),
+	  impulseMag(0.0f)
 {
 }
 
@@ -84,6 +87,7 @@ void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
 	if (!manifold.contacts.empty())
 	{
 		ResolveCollision(manifold);
+		//ResolveFriction(manifold);
 		ResolveInterpenetration(manifold);
 	}
 }
@@ -135,6 +139,45 @@ void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifol
 		newPos = manifold.body[1]->GetTransformRef().GetPosition() + scaledPenetration * manifold.body[0]->GetInverseMass();
 		manifold.body[1]->GetTransformRef().SetPosition(newPos);
     }
+}
+
+void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
+{
+	// Prevent "Spinning over"
+	if (impulseMag < 50.0f)
+		return;
+
+	Vector3 tangentVector = CalculateTangentVector();
+
+	// Early-out, if no tangent vector has been found
+	if (tangentVector.LengthSquared() == 0.0f) return;
+
+	tangentVector.Normalize();
+
+	float frictionMagnitude = CalculateFrictionMagnitude(tangentVector, manifold);
+
+	// Early-out if friction magnitude is 0
+	if (frictionMagnitude == 0.0f)
+		return;
+
+	float friction = 0.8f;
+
+	// Coulomb's law
+	if (frictionMagnitude > impulseMag * friction)
+		frictionMagnitude = impulseMag * friction;
+
+	else if (frictionMagnitude < -impulseMag * friction)
+		frictionMagnitude = -impulseMag * friction;
+
+	// Flip sign, if creating impulse for hard constraint (no 2nd object)
+	if (manifold.body[1] == nullptr)
+		frictionMagnitude = -frictionMagnitude;
+
+	// Calculate actual friction impulse to apply
+	Vector3 frictionImpulse = tangentVector * frictionMagnitude;
+
+	ApplyLinearFrictionImpulse(frictionImpulse, manifold);
+	ApplyAngularFrictionImpulse(frictionImpulse, manifold);
 }
 
 
@@ -193,9 +236,39 @@ Vector3 CollisionResponse::CalculateImpulse(const CollisionManifold& manifold)
 
 	float denominator = invMassSum + relativeNormal.Dot(product);
 
-	float impulseMag = numerator / denominator;
+	impulseMag = numerator / denominator;
 
     return Vector3(relativeNormal * impulseMag);
+}
+
+Vector3 CollisionResponse::CalculateTangentVector()
+{
+	Vector3 tangent = Vector3::Zero;
+	tangent = relativeVelocity - (relativeNormal * relativeVelocity.Dot(relativeNormal));
+
+	return tangent;
+}
+
+float CollisionResponse::CalculateFrictionMagnitude(const DirectX::SimpleMath::Vector3& tangentVec,
+													const CollisionManifold& manifold)
+{
+	float numerator = -relativeVelocity.Dot(tangentVec);
+
+	Vector3 d2 = XMVector3Transform(pt1.Cross(tangentVec), manifold.body[0]->GetInverseInertiaTensor());
+	d2 = d2.Cross(pt1);
+
+	Vector3 d3;
+	if (manifold.body[1])
+	{
+		d3 = XMVector3Transform(pt2.Cross(tangentVec), manifold.body[1]->GetInverseInertiaTensor());
+		d3 = d3.Cross(pt2);
+	}
+
+	float denominator = invMassSum + tangentVec.Dot(d2 + d3);
+
+	float frictionMag = numerator / denominator;
+
+	return frictionMag;
 }
 
 
@@ -234,6 +307,28 @@ void CollisionResponse::ApplyAngularImpulse(const Vector3& impulse,
 		newAngVelocity = manifold.body[1]->GetAngularVelocity();
 		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
 		manifold.body[1]->SetAngularVelocity(newAngVelocity);
+	}
+}
+
+void CollisionResponse::ApplyLinearFrictionImpulse(const Vector3& impulse,
+												   const CollisionManifold& manifold)
+{
+	manifold.body[0]->SetVelocty(manifold.body[0]->GetVelocity() - impulse * manifold.body[0]->GetInverseMass());
+
+	if (manifold.body[1])
+	{
+		manifold.body[1]->SetVelocty(manifold.body[1]->GetVelocity() + impulse * manifold.body[0]->GetInverseMass());
+	}
+}
+
+void CollisionResponse::ApplyAngularFrictionImpulse(const Vector3& impulse,
+													const CollisionManifold& manifold)
+{
+	manifold.body[0]->SetAngularVelocity(manifold.body[0]->GetAngularVelocity() - Vector3::Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor()));
+
+	if (manifold.body[1])
+	{
+		manifold.body[1]->SetAngularVelocity(manifold.body[1]->GetAngularVelocity() + Vector3::Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor()));
 	}
 }
 

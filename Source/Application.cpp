@@ -734,7 +734,7 @@ void Application::PrepareObjects()
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 5.5f, 7.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 0.7f, 5.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
@@ -756,10 +756,7 @@ void Application::PrepareObjects()
 	}
 #pragma endregion CubesInit
 
-	auto buoyObject = static_cast<rbGameObject*>(_gameObjects[4]);
-	_forceRegistry->Add(buoyObject->GetRigidBody(), new BuoyancyGenerator(1.0f, 0.5f, 3.0f));
-
-	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 5.0f, 6.8f));
+	//_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 0.7f, 4.6f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -771,7 +768,7 @@ void Application::moveObject(int objectNumber,
 							 const DirectX::SimpleMath::Vector3& force)
 {
 	rbGameObject* rbObject = static_cast<rbGameObject*>(_gameObjects[objectNumber]);
-	rbObject->GetRigidBody()->AddForce(force, Vector3());
+	rbObject->GetRigidBody()->AddForce(force, Vector3(0.0f, 0.0f, 0.0f));
 }
 
 void Application::Update(const DX::StepTimer& timer)
@@ -781,12 +778,12 @@ void Application::Update(const DX::StepTimer& timer)
 	// Move gameobject
 	if (GetAsyncKeyState('1'))
 	{
-		moveObject(5, Vector3(0.0f, 0.0f, 30.0f));
+		moveObject(1, Vector3(30.0f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState('2'))
 	{
-		moveObject(5, Vector3(0.0f, 0.0f, -30.0f));
+		moveObject(1, Vector3(-30.0f, 0.0f, 0.0f));
 	}
 
 	UpdateCamera();

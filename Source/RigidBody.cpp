@@ -9,7 +9,7 @@ RigidBody::RigidBody(Transform& transform,
 					 const Vector3& initialVelocity,
 					 const Vector3& initialAcceleration)
 	: ParticleModel(transform, initialVelocity, initialAcceleration),
-	  _angularDamping(0.99f),
+	  _angularDamping(0.95f),
 	  _angularVelocity(Vector3::Zero),
 	  _angularAcceleration(Vector3::Zero),
 	  _torqueAccumulator(Vector3::Zero),
@@ -54,9 +54,6 @@ void RigidBody::Integrate(float deltaTime)
 void RigidBody::CalculateTransformation()
 {
 	_orientation.normalise();
-
-	spdlog::get("LOGGER")->info("Rotation: {} {} {} {}", _orientation.i, _orientation.j, _orientation.k, _orientation.r);
-
 	CalculateTransformMatrixColumnMajor((DirectX::XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
 }
 
