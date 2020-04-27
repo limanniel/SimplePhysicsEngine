@@ -749,14 +749,14 @@ void Application::PrepareObjects()
 		cubeObject->SetBoudningSphereRadius(0.5f);
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
-		_forceRegistry->Add(cubeObject->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -4.4f, 0.0f)));
-		_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
+		//_forceRegistry->Add(cubeObject->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -4.4f, 0.0f)));
+		//_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
 
 		_gameObjects.push_back(cubeObject);
 	}
 #pragma endregion CubesInit
 
-	//_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 0.7f, 4.6f));
+	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 1.0f, 5.0f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -791,7 +791,6 @@ void Application::Update(const DX::StepTimer& timer)
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
-
 		for (auto gameObject2 : _gameObjects)
 		{
 			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);

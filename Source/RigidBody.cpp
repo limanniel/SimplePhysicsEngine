@@ -40,6 +40,8 @@ void RigidBody::Integrate(float deltaTime)
 	_velocity += (_acceleration + newAcceleration) * (deltaTime * 0.5f);
 	_angularVelocity += (_angularAcceleration + newAngularAcceleration) * (deltaTime * 0.5f);
 
+	spdlog::get("LOGGER")->info("Ang Vel: {} {} {}", _angularVelocity.x, _angularVelocity.y, _angularVelocity.z);
+
 	// Apply dampening
 	_velocity *= powf(_linearDamping, deltaTime);
 	_angularVelocity *= powf(_angularDamping, deltaTime);
@@ -52,7 +54,7 @@ void RigidBody::Integrate(float deltaTime)
 	_transform.SetPosition(newPosition);
 
 	// Update Orientation
-	_orientation += Quaternion(_angularVelocity * deltaTime + _angularAcceleration * (deltaTime * deltaTime), 0.0f);
+	_orientation += Quaternion((_angularVelocity * deltaTime) + (_angularAcceleration * (deltaTime * deltaTime)), 1.0f);
 
 	// Update old Acceleration to current
 	_acceleration = newAcceleration;

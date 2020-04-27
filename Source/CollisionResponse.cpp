@@ -87,7 +87,7 @@ void CollisionResponse::Update(rbGameObject* obj1, rbGameObject* obj2)
 	if (!manifold.contacts.empty())
 	{
 		ResolveCollision(manifold);
-		//ResolveFriction(manifold);
+		ResolveFriction(manifold);
 		ResolveInterpenetration(manifold);
 	}
 }
@@ -143,9 +143,9 @@ void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifol
 
 void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
 {
-	// Prevent "Spinning over"
-	if (impulseMag < 50.0f)
-		return;
+	//// Prevent "Spinning over"
+	//if (impulseMag < 50.0f)
+	//	return;
 
 	Vector3 tangentVector = CalculateTangentVector();
 
@@ -160,7 +160,7 @@ void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
 	if (frictionMagnitude == 0.0f)
 		return;
 
-	float friction = 0.8f;
+	float friction = 0.01f;
 
 	// Coulomb's law
 	if (frictionMagnitude > impulseMag * friction)
@@ -298,14 +298,14 @@ void CollisionResponse::ApplyAngularImpulse(const Vector3& impulse,
 {
 	// Apply Angular impulse to first object
 	Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
-	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor() * 100000.0f);
+	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor());
 	manifold.body[0]->SetAngularVelocity(newAngVelocity);
 
 	if (manifold.body[1])
 	{
 		// Apply Angular impulse to second object
 		newAngVelocity = manifold.body[1]->GetAngularVelocity();
-		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor() * 100000.0f);
+		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor());
 		manifold.body[1]->SetAngularVelocity(newAngVelocity);
 	}
 }
