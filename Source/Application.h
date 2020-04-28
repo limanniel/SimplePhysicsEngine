@@ -27,7 +27,7 @@
 #include "CollisionResponse.h"
 #include "DebugDraw.h"
 
-constexpr int AMOUNT_OF_CUBES = 5;
+constexpr int AMOUNT_OF_CUBES = 2;
 
 class Application
 {
@@ -80,6 +80,7 @@ private:
 	float	 _cameraSpeed;
 
 	DebugDraw* _debugDraw;
+	bool	   _drawGameObjects;
 
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -97,6 +98,7 @@ private:
 
 	void Draw();
 	void PrepareDraw();
+	void DrawImGUIDebug();
 	ConstantBuffer PrepareConstantBuffer();
 
 	void PrepareObjects();

@@ -26,5 +26,6 @@ public:
 							const DirectX::XMVECTORF32& colour = DirectX::Colors::Green);
 
 	inline void SetActive(bool state) { _active = state; }
+	inline bool GetActive() const { return _active; }
 	inline bool IsActive() const { return _active; }
 };

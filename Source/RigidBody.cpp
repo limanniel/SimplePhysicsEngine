@@ -2,18 +2,18 @@
 #include "Transform.h"
 #include "spdlog.h"
 
-using namespace DirectX::SimpleMath;
+using DirectX::SimpleMath::Vector3;
+using DirectX::SimpleMath::Matrix;
 
 RigidBody::RigidBody(Transform& transform,
 					 const Vector3& initialVelocity,
 					 const Vector3& initialAcceleration)
 	: ParticleModel(transform, initialVelocity, initialAcceleration),
-	  _angularDamping(0.95f),
+	  _angularDamping(0.65f),
 	  _angularVelocity(Vector3::Zero),
 	  _angularAcceleration(Vector3::Zero),
 	  _torqueAccumulator(Vector3::Zero),
-	  _orientation(DirectX::SimpleMath::Quaternion::Identity),
-	  _oldOrientation(_orientation),
+	  _orientation(Quaternion()),
 	  _inverseInertiaTensor(Matrix::Identity),
 	  _transformMatrix(Matrix::Identity)
 {
@@ -29,7 +29,7 @@ RigidBody::~RigidBody()
 void RigidBody::Integrate(float deltaTime)
 {
 	// Skip integration, if particle has infinite mass
-	if (_inverseMass <= 0.0f) return;
+	if (_inverseMass == 0.0f) return;
 
 
 	// Calculate new accelerations (current)
@@ -52,10 +52,11 @@ void RigidBody::Integrate(float deltaTime)
 	_transform.SetPosition(newPosition);
 
 	// Update Orientation
-	_orientation += Quaternion((_angularVelocity * deltaTime) + (_angularAcceleration * (deltaTime * deltaTime)), 1.0f);
+	_orientation.addScaledVector(_angularVelocity, deltaTime);
 
-	// Update old Acceleration to current
+	// Update old Accelerations to current
 	_acceleration = newAcceleration;
+	_angularAcceleration = newAngularAcceleration;
 
 
 	CalculateTransformation();
@@ -65,8 +66,8 @@ void RigidBody::Integrate(float deltaTime)
 
 void RigidBody::CalculateTransformation()
 {
-	_orientation.Normalize();
-	_transformMatrix = Matrix::Transform(_transformMatrix, _orientation);
+	_orientation.normalise();
+	CalculateTransformMatrixColumnMajor((XMMATRIX&)_transformMatrix, _transform.GetPosition(), _orientation);
 }
 
 void RigidBody::ResetForces()

@@ -107,9 +107,6 @@
     <ClInclude Include="Source\Particle.h">
       <Filter>Headers\Particle System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Quaternion.h">
-      <Filter>Headers\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DebugDraw.h">
       <Filter>Headers\Utils</Filter>
     </ClInclude>
@@ -133,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="Source\BuoyancyGenerator.h">
       <Filter>Headers\ForceGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Quaternion.h">
+      <Filter>Headers\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

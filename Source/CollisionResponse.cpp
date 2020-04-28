@@ -103,7 +103,7 @@ void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
     relativeNormal = manifold.normal;
 
     // Early-out if objects are moving apart
-    if (relativeVelocity.Dot(relativeNormal) > 0.0f) return;
+    if (relativeVelocity.Dot(relativeNormal) >= 0.0f) return;
 
     invMassSum = CalculateInverseMassSum(manifold);
     // Early-out if inverse mass sum is infinite
@@ -116,32 +116,6 @@ void CollisionResponse::ResolveCollision(const CollisionManifold& manifold)
 
     ApplyLinearImpulse(impulse, manifold);
     ApplyAngularImpulse(impulse, manifold);
-}
-
-void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifold)
-{
-    float penetration = fmaxf(manifold.penetration, 0.0f);
-
-    // Percentage of penetration that needs to be applied, to each object (distributed)
-    float scalar = penetration * invMassSum;
-
-    Vector3 scaledPenetration = manifold.normal * scalar;
-
-    // Flip sign, if creating correction for hard constraint (no second object)
-	if (manifold.body[1] == nullptr)
-	{
-		scaledPenetration += manifold.normal * penetration;
-		scaledPenetration = -scaledPenetration;
-	}
-
-    Vector3 newPos = manifold.body[0]->GetTransformRef().GetPosition() - scaledPenetration * manifold.body[0]->GetInverseMass();
-    manifold.body[0]->GetTransformRef().SetPosition(newPos);
-
-    if (manifold.body[1])
-    {
-		newPos = manifold.body[1]->GetTransformRef().GetPosition() + scaledPenetration * manifold.body[0]->GetInverseMass();
-		manifold.body[1]->GetTransformRef().SetPosition(newPos);
-    }
 }
 
 void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
@@ -160,13 +134,7 @@ void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
 		return;
 
 	float friction = 0.01f;
-
-	// Coulomb's law
-	if (frictionMagnitude > impulseMag * friction)
-		frictionMagnitude = impulseMag * friction;
-
-	else if (frictionMagnitude < -impulseMag * friction)
-		frictionMagnitude = -impulseMag * friction;
+	frictionMagnitude *= friction;
 
 	// Flip sign, if creating impulse for hard constraint (no 2nd object)
 	if (manifold.body[1] == nullptr)
@@ -177,6 +145,32 @@ void CollisionResponse::ResolveFriction(const CollisionManifold& manifold)
 
 	ApplyLinearFrictionImpulse(frictionImpulse, manifold);
 	ApplyAngularFrictionImpulse(frictionImpulse, manifold);
+}
+
+void CollisionResponse::ResolveInterpenetration(const CollisionManifold& manifold)
+{
+    float penetration = fmaxf(manifold.penetration, 0.0f);
+
+    // Percentage of penetration that needs to be applied, to each object (distributed)
+    float scalar = penetration * invMassSum;
+
+    Vector3 scaledPenetration = manifold.normal * penetration;
+
+    // Flip sign, if creating correction for hard constraint (no second object)
+	if (manifold.body[1] == nullptr)
+	{
+		//scaledPenetration += manifold.normal * penetration;
+		scaledPenetration = -scaledPenetration;
+	}
+
+    Vector3 newPos = manifold.body[0]->GetTransformRef().GetPosition() - scaledPenetration * manifold.body[0]->GetInverseMass();
+    manifold.body[0]->GetTransformRef().SetPosition(newPos);
+
+    if (manifold.body[1])
+    {
+		newPos = manifold.body[1]->GetTransformRef().GetPosition() + scaledPenetration * manifold.body[0]->GetInverseMass();
+		manifold.body[1]->GetTransformRef().SetPosition(newPos);
+    }
 }
 
 
@@ -297,14 +291,14 @@ void CollisionResponse::ApplyAngularImpulse(const Vector3& impulse,
 {
 	// Apply Angular impulse to first object
 	Vector3 newAngVelocity = manifold.body[0]->GetAngularVelocity();
-	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor());
+	newAngVelocity -= XMVector3Transform(pt1.Cross(impulse * 100000.0f), manifold.body[0]->GetInverseInertiaTensor());
 	manifold.body[0]->SetAngularVelocity(newAngVelocity);
 
 	if (manifold.body[1])
 	{
 		// Apply Angular impulse to second object
 		newAngVelocity = manifold.body[1]->GetAngularVelocity();
-		newAngVelocity += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor());
+		newAngVelocity += XMVector3Transform(pt2.Cross(impulse * 100000.0f), manifold.body[1]->GetInverseInertiaTensor());
 		manifold.body[1]->SetAngularVelocity(newAngVelocity);
 	}
 }
@@ -323,11 +317,15 @@ void CollisionResponse::ApplyLinearFrictionImpulse(const Vector3& impulse,
 void CollisionResponse::ApplyAngularFrictionImpulse(const Vector3& impulse,
 													const CollisionManifold& manifold)
 {
-	manifold.body[0]->SetAngularVelocity(manifold.body[0]->GetAngularVelocity() - Vector3::Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor()));
+	Vector3 newAngFriction = manifold.body[0]->GetAngularVelocity();
+	newAngFriction -= XMVector3Transform(pt1.Cross(impulse), manifold.body[0]->GetInverseInertiaTensor());
+	manifold.body[0]->SetAngularVelocity(newAngFriction);
 
 	if (manifold.body[1])
 	{
-		manifold.body[1]->SetAngularVelocity(manifold.body[1]->GetAngularVelocity() + Vector3::Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor()));
+		newAngFriction = manifold.body[1]->GetAngularVelocity();
+		newAngFriction += XMVector3Transform(pt2.Cross(impulse), manifold.body[1]->GetInverseInertiaTensor());
+		manifold.body[1]->SetAngularVelocity(newAngFriction);
 	}
 }
 

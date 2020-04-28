@@ -103,6 +103,8 @@ Application::Application()
 	_particleSystem = nullptr;
 	_forceRegistry = new ForceRegistry;
 
+	_drawGameObjects = true;
+
 	// Set-up spdlog
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	auto logger = std::make_shared<spdlog::logger>("LOGGER", sink);
@@ -727,14 +729,14 @@ void Application::PrepareObjects()
 #pragma endregion FloorInit
 
 #pragma region CubesInit
-	float cubeMass = 50.0f;
+	float cubeMass = 100.0f;
 
 	Matrix cubeTensor = Matrix::Identity;
 
 
 	for (auto i = 0; i < AMOUNT_OF_CUBES; ++i)
 	{
-		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 6.7f, 5.0f),
+		rbGameObject* cubeObject = new rbGameObject(Vector3(-4.0f + (i * 2.0f), 4.7f, 5.0f),
 													Vector3(0.0f, 0.0f, 0.0f),
 													Vector3(0.5f, 0.5f, 0.5f),
 													cubeGeometry,
@@ -756,7 +758,9 @@ void Application::PrepareObjects()
 	}
 #pragma endregion CubesInit
 
-	//_gameObjects[1]->GetTransform()->SetPosition(Vector3(-4.0f, 1.0f, 5.0f));
+	_gameObjects[1]->GetTransform()->SetPosition(Vector3(-2.0f, 7.7f, 4.3f));
+	//auto object = static_cast<rbGameObject*>(_gameObjects[5]);
+	//_forceRegistry->Add(object->GetRigidBody(), new BuoyancyGenerator(1.0f, 0.1f, 4.0f));
 
 	_particleSystem = new ParticleSystem(50,
 										 2.0f,
@@ -791,16 +795,14 @@ void Application::Update(const DX::StepTimer& timer)
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
+		gameObject->Update(deltaTime);
 		for (auto gameObject2 : _gameObjects)
 		{
 			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);
 		}
-
-		gameObject->Update(deltaTime);
 	}
-
-	//_particleSystem->Update(deltaTime);
 	_forceRegistry->Update(deltaTime);
+	_particleSystem->Update(deltaTime);
 }
 
 void Application::UpdateCamera()
@@ -855,6 +857,22 @@ ConstantBuffer Application::PrepareConstantBuffer()
 	return cb;
 }
 
+void Application::DrawImGUIDebug()
+{
+	// ImGUI Window
+	ImGui::Begin("Debug Console");
+	ImGui::Text("FPS: %d", _stepTimer.GetFramesPerSecond());
+
+	auto newMode = _debugDraw->IsActive();
+	if (ImGui::Checkbox("Bounding Sphere Debug", &newMode))
+	{
+		_debugDraw->SetActive(newMode);
+	}
+	ImGui::Checkbox("Draw Game Objects", &_drawGameObjects);
+
+	ImGui::End();
+}
+
 void Application::Draw()
 {
 	// Skip render, if coming before first update
@@ -870,34 +888,37 @@ void Application::Draw()
 	cb.light = _basicLight;
 	cb.EyePosW = _camera->GetPosition();
 
-	// Render all scene objects
-	for (auto gameObject : _gameObjects)
+	if (_drawGameObjects)
 	{
-		// Get render material
-		Material material = gameObject->GetAppearance()->GetMaterial();
+		// Render all scene objects
+		for (auto gameObject : _gameObjects)
+		{
+			// Get render material
+			Material material = gameObject->GetAppearance()->GetMaterial();
 
-		// Copy material to shader
-		cb.surface.AmbientMtrl = material.ambient;
-		cb.surface.DiffuseMtrl = material.diffuse;
-		cb.surface.SpecularMtrl = material.specular;
+			// Copy material to shader
+			cb.surface.AmbientMtrl = material.ambient;
+			cb.surface.DiffuseMtrl = material.diffuse;
+			cb.surface.SpecularMtrl = material.specular;
 
-		// Set world matrix
-		cb.World = XMMatrixTranspose(gameObject->GetWorldMatrix());
+			// Set world matrix
+			cb.World = XMMatrixTranspose(gameObject->GetWorldMatrix());
 
-		// Set texture
-		if (gameObject->GetAppearance()->HasTexture())
-			cb.HasTexture = 1.0f;
-		else
-			cb.HasTexture = 0.0f;
+			// Set texture
+			if (gameObject->GetAppearance()->HasTexture())
+				cb.HasTexture = 1.0f;
+			else
+				cb.HasTexture = 0.0f;
 
-		// Update constant buffer
-		_pImmediateContext->UpdateSubresource(_pConstantBuffer.Get(), 0, nullptr, &cb, 0, 0);
+			// Update constant buffer
+			_pImmediateContext->UpdateSubresource(_pConstantBuffer.Get(), 0, nullptr, &cb, 0, 0);
 
-		// Draw object
-		gameObject->Render(_pImmediateContext.Get());
+			// Draw object
+			gameObject->Render(_pImmediateContext.Get());
+		}
 	}
 
-	//_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
+	_particleSystem->Render(_pImmediateContext.Get(), cb, _pConstantBuffer.Get());
 
 	// Draw Debug Bounding Spheres
 	for (int i = 1; i <= AMOUNT_OF_CUBES; ++i)
@@ -905,11 +926,7 @@ void Application::Draw()
 		_debugDraw->DrawBoundingSphere(_pImmediateContext.Get(), cb, _gameObjects[i]->GetTransform()->GetPosition(), _gameObjects[i]->GetTransform()->GetScale(), DirectX::Colors::Red);
 	}
 
-
-	// ImGUI Window
-	ImGui::Begin("Debug Console");
-	ImGui::Text("FPS: %d", _stepTimer.GetFramesPerSecond());
-	ImGui::End();
+	DrawImGUIDebug();
 
 	// Render ImGUI
 	ImGui::Render();
