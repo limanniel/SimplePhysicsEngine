@@ -4,6 +4,8 @@
 #include <SimpleMath.h>
 #include <vector>
 
+#include "ForceRegistry.h"
+
 class Particle;
 class Transform;
 class Appearance;
@@ -25,15 +27,32 @@ private:
 	DirectX::SimpleMath::Vector3 _minPosOffset;
 	DirectX::SimpleMath::Vector3 _maxPosOffset;
 
+	ForceRegistry*         _forceRegister;
+
+	GravityGenerator*  _gravGen;
+	DragGenerator*     _dragGen;
+	BuoyancyGenerator* _buoyGen;
+
 	std::vector<Particle*> _particles;
 
 private:
 	void InitParticles();
+	void RegisterForceGenerators();
 	void AddParticle();
+
 	void ResetParticle(Particle* particle);
 	void ResetParticles();
+
+	void RegisterParticleWithForceGen(Particle* particle);
+	void UnregisterParticleFromForceGen(Particle* particle);
+
 	void DeleteParticles();
 	void ResizeParticlePool();
+
+	void ParticleImGUI();
+	void UtilsImGUI();
+	void PositionImGUI();
+	void ForceGeneratorsImGUI();
 
 	void RenderImGUI();
 	void ChangeParticlesColour();

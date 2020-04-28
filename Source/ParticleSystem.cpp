@@ -22,9 +22,14 @@ ParticleSystem::ParticleSystem(int amountOfParticles,
 	  _minParticleDurationOffset(0.0f),
 	  _maxParticleDurationOffset(0.0f),
 	  _minPosOffset(Vector3::Zero),
-	  _maxPosOffset(Vector3::Zero)
+	  _maxPosOffset(Vector3::Zero),
+	  _gravGen(new GravityGenerator(Vector3())),
+	  _dragGen(new DragGenerator(0.0f, 0.0f)),
+	  _buoyGen(new BuoyancyGenerator(0.0f, 0.0f, 0.0f)),
+	  _forceRegister(new ForceRegistry)
 {
 	InitParticles();
+	//RegisterForceGenerators();
 }
 
 ParticleSystem::~ParticleSystem()
@@ -36,6 +41,18 @@ ParticleSystem::~ParticleSystem()
 
 	delete _systemAppearance;
 	_systemAppearance = nullptr;
+
+	delete _gravGen;
+	_gravGen = nullptr;
+
+	delete _dragGen;
+	_dragGen = nullptr;
+
+	delete _buoyGen;
+	_buoyGen = nullptr;
+
+	delete _forceRegister;
+	_forceRegister = nullptr;
 }
 
 void ParticleSystem::InitParticles()
@@ -48,6 +65,16 @@ void ParticleSystem::InitParticles()
 	}
 }
 
+void ParticleSystem::RegisterForceGenerators()
+{
+	for (auto particle : _particles)
+	{
+		_forceRegister->Add(particle->GetParticleModel(), _gravGen);
+		_forceRegister->Add(particle->GetParticleModel(), _dragGen);
+		_forceRegister->Add(particle->GetParticleModel(), _buoyGen);
+	}
+}
+
 void ParticleSystem::AddParticle()
 {
 	Particle* particle = new Particle(_particleDuration,
@@ -56,6 +83,8 @@ void ParticleSystem::AddParticle()
 
 	particle->GetAppearance()->SetDiffuseColour(_diffuseColour);
 	_particles.push_back(particle);
+
+	RegisterParticleWithForceGen(particle);
 }
 
 void ParticleSystem::ResetParticle(Particle* particle)
@@ -73,6 +102,20 @@ void ParticleSystem::ResetParticles()
 	{
 		ResetParticle(particle);
 	}
+}
+
+void ParticleSystem::RegisterParticleWithForceGen(Particle* particle)
+{
+	_forceRegister->Add(particle->GetParticleModel(), _gravGen);
+	_forceRegister->Add(particle->GetParticleModel(), _dragGen);
+	_forceRegister->Add(particle->GetParticleModel(), _buoyGen);
+}
+
+void ParticleSystem::UnregisterParticleFromForceGen(Particle* particle)
+{
+	_forceRegister->Unregister(particle->GetParticleModel(), *_gravGen);
+	_forceRegister->Unregister(particle->GetParticleModel(), *_dragGen);
+	_forceRegister->Unregister(particle->GetParticleModel(), *_buoyGen);
 }
 
 void ParticleSystem::DeleteParticles()
@@ -93,6 +136,7 @@ void ParticleSystem::ResizeParticlePool()
 	{
 		for (auto it = _particles.end() - 1; it != _particles.end() - abs(difference - 1); --it)
 		{
+			UnregisterParticleFromForceGen(*it);
 			delete *it;
 		}
 
@@ -113,11 +157,10 @@ void ParticleSystem::ResizeParticlePool()
 	ResetParticles();
 }
 
-void ParticleSystem::RenderImGUI()
-{
-	ImGui::Begin("Particle System");
+#pragma region ImGUI
 
-	// Utils
+void ParticleSystem::UtilsImGUI()
+{
 	ImGui::Checkbox("Active", &_active);
 	ImGui::SameLine(160.0f);
 	if (ImGui::Button("RESET"))
@@ -136,7 +179,10 @@ void ParticleSystem::RenderImGUI()
 			_amountOfParticles = 1;
 		}
 	}
+}
 
+void ParticleSystem::ParticleImGUI()
+{
 	if (ImGui::CollapsingHeader("Particle"))
 	{
 		// Colour
@@ -155,8 +201,10 @@ void ParticleSystem::RenderImGUI()
 		ImGui::SliderFloat("Min Duration Offset", &_minParticleDurationOffset, 0.0f, _maxParticleDurationOffset);
 		ImGui::SliderFloat("Max Duration Offset", &_maxParticleDurationOffset, _minParticleDurationOffset, 50.0f);
 	}
+}
 
-	// Position
+void ParticleSystem::PositionImGUI()
+{
 	if (ImGui::CollapsingHeader("Position"))
 	{
 		XMFLOAT3 newPos = _systemTransform->GetPosition();
@@ -168,9 +216,101 @@ void ParticleSystem::RenderImGUI()
 		ImGui::SliderFloat3("Min Pos Offset", &_minPosOffset.x, -5.0f, _maxPosOffset.x);
 		ImGui::SliderFloat3("Max Pos Offset", &_maxPosOffset.x, -_minPosOffset.x, 5.0f);
 	}
+}
+
+void ParticleSystem::ForceGeneratorsImGUI()
+{
+	if (ImGui::CollapsingHeader("Force Generators"))
+	{
+	#pragma region Gravity
+		// Gravity Gen
+		float gravityVal[3] = { _gravGen->GetCurrentGravity().x, _gravGen->GetCurrentGravity().y, _gravGen->GetCurrentGravity().z };
+		if (ImGui::InputFloat3("Gravity", gravityVal))
+		{
+			_gravGen->ChangeGravity(Vector3(gravityVal[0], gravityVal[1], gravityVal[2]));
+		}
+	#pragma endregion Gravity
+	#pragma region Drag
+		// Drag Gen
+		static const char* options[] = { "NONE", "SPHERE", "HALF_SPHERE", "CONE", "CUBE", "ANGLED_CUBE", "LONG_CYLINDER", "SHORT_CYLINDER", "STREAMLINED_BODY", "STREAMLINED_HALF_BODY" };
+		static const char* currentLaminar = options[0];
+		static const char* currentTurbulent = options[0];
+
+		if (ImGui::BeginCombo("Laminar Drag", currentLaminar))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(options); ++n)
+			{
+				bool is_selected = currentLaminar == options[n];
+				if (ImGui::Selectable(options[n], is_selected))
+				{
+					currentLaminar = options[n];
+					_dragGen->ChangeLaminarCoeff(DragGenerator::s_coefficients[n]);
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+		if (ImGui::BeginCombo("Turbulent Drag", currentTurbulent))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(options); ++n)
+			{
+				bool is_selected = currentTurbulent == options[n];
+				if (ImGui::Selectable(options[n], is_selected))
+				{
+					currentTurbulent = options[n];
+					_dragGen->ChangeLaminarCoeff(DragGenerator::s_coefficients[n]);
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+	#pragma endregion Drag
+	#pragma region Buoyancy
+		if (ImGui::CollapsingHeader("Buoyancy"))
+		{
+			float currMaxDepth = _buoyGen->GetMaxDepth();
+			if (ImGui::SliderFloat("Max Depth", &currMaxDepth, 0.0f, 8.0f))
+			{
+				_buoyGen->ChangeMaxDepth(currMaxDepth);
+			}
+
+			float currVolume = _buoyGen->GetVolume();
+			if (ImGui::InputFloat("Volume", &currVolume))
+			{
+				_buoyGen->ChangeVolume(currVolume);
+			}
+
+			float currWaterHeight = _buoyGen->GetWaterHeight();
+			if (ImGui::InputFloat("Water Height", &currWaterHeight))
+			{
+				_buoyGen->ChangeWaterHeight(currWaterHeight);
+			}
+
+			float currLiquidDensity = _buoyGen->GetLiquidDensity();
+			if (ImGui::InputFloat("Liquid Density", &currLiquidDensity))
+			{
+				_buoyGen->ChangeWaterHeight(currLiquidDensity);
+			}
+		}
+	#pragma endregion Buoyancy
+	}
+}
+
+void ParticleSystem::RenderImGUI()
+{
+	ImGui::Begin("Particle System");
+
+	UtilsImGUI();
+	ParticleImGUI();
+	PositionImGUI();
+	ForceGeneratorsImGUI();
 
 	ImGui::End();
 }
+
+#pragma endregion ImGUI
 
 void ParticleSystem::ChangeParticlesColour()
 {
@@ -184,6 +324,8 @@ void ParticleSystem::Update(float deltaTime)
 {
 	if (_active)
 	{
+		_forceRegister->Update(deltaTime);
+
 		for (auto particle : _particles)
 		{
 			if (particle->IsExpired())
@@ -192,7 +334,6 @@ void ParticleSystem::Update(float deltaTime)
 				continue;
 			}
 
-			particle->GetParticleModel()->AddForce(Vector3(0.0f, 2.0f, 0.0f));
 			particle->Update(deltaTime);
 		}
 	}

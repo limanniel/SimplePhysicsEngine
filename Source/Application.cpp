@@ -650,6 +650,7 @@ void Application::InitImGUI()
 
 void Application::Cleanup()
 {
+	_forceRegistry->Clear();
 	delete _forceRegistry;
 	_forceRegistry = nullptr;
 
@@ -752,7 +753,8 @@ void Application::PrepareObjects()
 		cubeObject->GetAppearance()->SetTextureRV(_pTextureRV.Get());
 
 		_forceRegistry->Add(cubeObject->GetRigidBody(), new GravityGenerator(Vector3(0.0f, -4.4f, 0.0f)));
-		_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragCoefficients::Cube, DragCoefficients::Cube));
+		_forceRegistry->Add(cubeObject->GetRigidBody(), new DragGenerator(DragGenerator::s_coefficients[(int)DRAG_COEFFICIENTS::CUBE],
+																		  DragGenerator::s_coefficients[(int)DRAG_COEFFICIENTS::CUBE]));
 
 		_gameObjects.push_back(cubeObject);
 	}
@@ -792,16 +794,20 @@ void Application::Update(const DX::StepTimer& timer)
 
 	UpdateCamera();
 	
-	// Update objects
+	// Update forces to be acted upon objects
+	_forceRegistry->Update(deltaTime);
+
 	for (auto gameObject : _gameObjects)
 	{
 		gameObject->Update(deltaTime);
+
+		// Check for collisions and respond to ones that occured
 		for (auto gameObject2 : _gameObjects)
 		{
 			_collisionResponse.Update((rbGameObject*)gameObject, (rbGameObject*)gameObject2);
 		}
 	}
-	_forceRegistry->Update(deltaTime);
+
 	_particleSystem->Update(deltaTime);
 }
 

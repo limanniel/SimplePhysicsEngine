@@ -20,11 +20,12 @@ BuoyancyGenerator::BuoyancyGenerator(float maxDepth,
 
 BuoyancyGenerator::~BuoyancyGenerator() = default;
 
-void BuoyancyGenerator::UpdateForce(RigidBody* rigidBody, float deltaTime)
+void BuoyancyGenerator::UpdateForce(ParticleModel* particle,
+									float deltaTime)
 {
 	UNREFERENCED_PARAMETER(deltaTime);
 
-	float currentDepth = rigidBody->GetTransformRef().GetPosition().y;
+	float currentDepth = particle->GetTransformRef().GetPosition().y;
 
 	// Early-out, if object is higher than water level
 	if (currentDepth >= _waterHeight + _maxDepth) return;
@@ -35,11 +36,11 @@ void BuoyancyGenerator::UpdateForce(RigidBody* rigidBody, float deltaTime)
 	if (currentDepth <= _waterHeight - _maxDepth)
 	{
 		force.y = _liquidDensity * _volume;
-		rigidBody->AddForce(force, Vector3());
+		particle->AddForce(force);
 		return;
 	}
 
 	// Partially sumberged update
 	force.y = _liquidDensity * _volume * (currentDepth - _maxDepth - _waterHeight) / 2 * _maxDepth;
-	rigidBody->AddForce(force, Vector3());
+	particle->AddForce(force);
 }

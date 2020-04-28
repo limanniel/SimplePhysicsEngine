@@ -18,8 +18,18 @@ public:
 
 	~BuoyancyGenerator();
 
-	void UpdateForce(RigidBody* rigidBody,
+	void UpdateForce(ParticleModel* particle,
 					 float deltaTime) override;
 
-};
+	inline void ChangeMaxDepth(float newMaxDepth) { _maxDepth = newMaxDepth; }
+	inline float GetMaxDepth() const { return _maxDepth; }
 
+	inline void ChangeVolume(float newVolume) { _volume = newVolume; }
+	inline float GetVolume() const { return _volume; }
+
+	inline void ChangeWaterHeight(float newWaterHeight) { _waterHeight = newWaterHeight; }
+	inline float GetWaterHeight() const { return _waterHeight; }
+
+	inline void ChangeLiquidDensity(float newLiquidDensity) { _liquidDensity = newLiquidDensity; }
+	inline float GetLiquidDensity() const { return _liquidDensity; }
+};

@@ -52,7 +52,4 @@ public:
 
 	// Get rigid bodie's transform matrix (rotation * position)
 	inline DirectX::SimpleMath::Matrix GetTransformMatrix() const { return _transformMatrix; }
-
-	inline Transform& GetTransformRef() const { return _transform; }
 };
-

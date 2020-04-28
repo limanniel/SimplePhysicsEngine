@@ -57,5 +57,7 @@ public:
 
 	// Check if object's mass is finite
 	inline bool HasFiniteMass() const { return _inverseMass > 0.0f; }
+
+	inline Transform& GetTransformRef() const { return _transform; }
 };
 

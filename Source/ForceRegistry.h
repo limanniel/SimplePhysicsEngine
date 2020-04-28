@@ -10,21 +10,18 @@ class ForceRegistry
 {
 	struct ForceRegister
 	{
-		RigidBody* rigidBody;
+		ParticleModel* particle;
 		ForceGenerator* forceGenerator;
 
-		ForceRegister(RigidBody* rb,
+		ForceRegister(ParticleModel* p,
 					  ForceGenerator* fg)
-			: rigidBody(rb),
+			: particle(p),
 			  forceGenerator(fg)
 		{ }
 	};
 
 private:
 	std::vector<ForceRegister> _registry;
-
-	// Clear registry
-	void Clear();
 
 public:
 	ForceRegistry();
@@ -33,9 +30,15 @@ public:
 	// Update registered rigid bodies
 	void Update(float deltaTime);
 
-	// Add rigidbody and force generator to the registry
-	void Add(RigidBody* rigidBody, ForceGenerator* generator);
+	// Add particle and force generator to the registry
+	void Add(ParticleModel* particle, ForceGenerator* generator);
 
-	// Remove rigid body from registry
-	void Remove(RigidBody* rigidBody, ForceGenerator* generator);
+	// Remove force generator from registry
+	void Remove(ParticleModel* particle, ForceGenerator* generator);
+
+	// Unregister particle from selected force generator (doesn't remove pointers)
+	void Unregister(ParticleModel* particle, const ForceGenerator& generator);
+
+	// Clear registry
+	void Clear();
 };

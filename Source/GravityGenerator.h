@@ -13,6 +13,9 @@ public:
 	GravityGenerator(const DirectX::SimpleMath::Vector3& gravity);
 	~GravityGenerator();
 
-	void UpdateForce(RigidBody* rigidBody,
+	void UpdateForce(ParticleModel* particle,
 					 float deltaTime) override;
+
+	inline void ChangeGravity(const DirectX::SimpleMath::Vector3& newGravity) { _gravity = newGravity; }
+	inline DirectX::SimpleMath::Vector3 GetCurrentGravity() const { return _gravity; }
 };

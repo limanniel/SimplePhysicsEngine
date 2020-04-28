@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RigidBody.h"
+#include "ParticleModel.h"
 
 // Interface for Force Generators
 class ForceGenerator
@@ -9,6 +9,6 @@ public:
 	ForceGenerator() = default;
 	virtual ~ForceGenerator() = default;
 
-	virtual void UpdateForce(RigidBody* rigidBody,
+	virtual void UpdateForce(ParticleModel* particle,
 							 float deltaTime) = 0;
 };

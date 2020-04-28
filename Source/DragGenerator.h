@@ -2,19 +2,19 @@
 
 #include "ForceGenerator.h"
 
-// namespace containing pre-calculated drag coefficients
-namespace DragCoefficients
+enum class DRAG_COEFFICIENTS
 {
-	constexpr float Sphere = 0.47f;
-	constexpr float Half_Sphere = 0.42f;
-	constexpr float Cone = 0.50f;
-	constexpr float Cube = 1.05f;
-	constexpr float Angled_Cube = 0.80f;
-	constexpr float Long_Cylinder = 0.82f;
-	constexpr float Short_Cylinder = 1.15f;
-	constexpr float Streamlined_Body = 0.04f;
-	constexpr float Streamlined_Half_Body = 0.09f;
-}
+	NONE = 0,
+	SPHERE,
+	HALF_SPHERE,
+	CONE,
+	CUBE,
+	ANGLED_CUBE,
+	LONG_CYLINDER,
+	SHORT_CYLINDER,
+	STREAMLINED_BODY,
+	STREAMLINED_HALF_BODY
+};
 
 class DragGenerator : public ForceGenerator
 {
@@ -27,6 +27,11 @@ public:
 				  float turbulentCoefficient);
 	~DragGenerator();
 
-	void UpdateForce(RigidBody* rigidBody,
+	void UpdateForce(ParticleModel* particle,
 					 float deltaTime) override;
+
+	static float s_coefficients[10];
+
+	inline void ChangeLaminarCoeff(float newLaminarCoeff) { _laminarCoefficient = newLaminarCoeff; }
+	inline void ChangeTurbulentCoeff(float newTurbulentCoeff) { _turbulentCoefficient = newTurbulentCoeff; }
 };
